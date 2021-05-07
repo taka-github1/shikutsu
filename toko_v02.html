@@ -4,8 +4,13 @@
 <html lang="ja" >
 
 <head>
+
   <meta charset="UTF-8">
   <title>attachment_upload_v06</title>
+  
+  
+  
+  
 <style>
 @media screen and (min-width: 767px) {
 
@@ -466,6 +471,8 @@ var webappId = "Mbk99KGQZSZGinLr";
 var feature_url = "https://services6.arcgis.com/YweFsHK2qzfki4O5/ArcGIS/rest/services/SHIKUTSU_UPLOAD_FS_MOVIE_v01/FeatureServer";
 var basemap_webmapid = "accf3eff22254ed69e23afeb094a4881";
 
+var group_id = "e3f695d643584adc8ed7df408c709d67";
+
 var register_url = feature_url + "/uploads/register";
 
 var layer_id = "0";
@@ -542,11 +549,27 @@ require([
     portal = new Portal();
 
     portal.load().then(function () {
-      $('#formDiv').css('display', 'block');
-      $('#completeDiv').css('display', 'none');
+      
+      //グループに所属しているかのチェック
+      portal.user.fetchGroups().then(function(fetchItemResult){
+        const match = fetchItemResult.find((group) => {
+          return (group.id === group_id);
+        });
 
-      token = identityManager.credentials[0].token;
-      initForm();
+        if (match == undefined) {
+          identityManager.destroyCredentials();
+          alert("システムを利用できるユーザではありません");
+          $('#anonymousPanel').css('display', 'block');
+          $('#personalizedPanel').css('display', 'none');
+          return;
+        }
+
+        $('#formDiv').css('display', 'block');
+        $('#completeDiv').css('display', 'none');
+        token = identityManager.credentials[0].token;
+
+        initForm();
+      });
     });
   }
 
@@ -1339,21 +1362,22 @@ function append_movie_attachent_upload_id(oid, upload_id) {
 
 function form_clear() {
   form_disabled(false);
-  
-  latitude = init_latitude;
-  longitude = init_longitude;
 
-  jusho = "";
+  if(navigator.geolocation) {
+    locateBtn.locate();
+  } else {
+    latitude = init_latitude;
+    longitude = init_longitude;
+    
+    jusho = "";
+    $('#jusho').val("");
+  }
+  
   $('#title').val("");
   $('#naiyo').val("");
-  $('#jusho').val("");
   $('#bikou').val("");
   view.graphics.removeAll();
 
-  $('#title').val("");
-  $('#naiyo').val("");
-  $('#jusho').val("");
-  $('#bikou').val("");
   $('#gridDiv').html("場所を指定してください");
   
   deleteAllImageRow();
