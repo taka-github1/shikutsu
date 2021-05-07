@@ -6,10 +6,6 @@
 <head>
   <meta charset="UTF-8">
   <title>attachment_upload_v06</title>
-  
-  
-  
-  
 <style>
 @media screen and (min-width: 767px) {
 
@@ -739,10 +735,10 @@ $('#sendbtn').click(function() {
       return;
     }
   } else {
-    var movie_upload_id_1 = $('#movie_upload_id_1').val();
-    var movie_upload_id_2 = $('#movie_upload_id_2').val();
-    var movie_upload_id_3 = $('#movie_upload_id_3').val();
-    if (movie_upload_id_1 == "" || movie_upload_id_2 == "" || movie_upload_id_3=="") {
+    var movie_upload_id_1 = $('#movie_upload_id_1').textContent;
+    var movie_upload_id_2 = $('#movie_upload_id_2').textContent;
+    var movie_upload_id_3 = $('#movie_upload_id_3').textContent;
+    if (movie_upload_id_1 == "" && movie_upload_id_2 == "" && movie_upload_id_3=="") {
       alert("動画が選択されていません");
       return;
     }
@@ -1038,7 +1034,7 @@ async function uploadBlobData(upload_id, file, index) {
 
         if (count > 1) {
           while (datas[count-1].status == 0){
-            await wait(1);
+            await wait(0.5);
           }
         }
         
