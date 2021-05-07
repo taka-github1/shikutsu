@@ -6,6 +6,7 @@
 <head>
 
   <meta charset="UTF-8">
+
   <title>attachment_upload_v06</title>
   
   
@@ -486,6 +487,7 @@ var longitude = null;
 var jusho = "";
 var view = null;
 var chunkSize = 3 * 1024 * 1024;
+var locateBtn;
 
 var markerSymbol = {
   type: "simple-marker",
@@ -542,14 +544,14 @@ require([
     $('#personalizedPanel').css('display', 'block');
     displayForm();
   });
-  
+
   //initForm();
 
   function displayForm() {
     portal = new Portal();
 
     portal.load().then(function () {
-      
+
       //グループに所属しているかのチェック
       portal.user.fetchGroups().then(function(fetchItemResult){
         const match = fetchItemResult.find((group) => {
@@ -596,7 +598,7 @@ require([
       position: "top-right"
     });
 
-    var locateBtn = new Locate({
+    locateBtn = new Locate({
       view: view
     });
 
@@ -671,627 +673,267 @@ require([
       graphic_rendar(cood.latitude, cood.longitude);
     });
   }
-});
 
-/*********************イベント処理*********************/
-$('#locate_conpact').click(function() {
-  $('#mapviewDiv').toggle(function(){
-    if ($(this).is(':visible')){
-      $("#locate_conpact").text("▲ 閉じる");
-    } else {
-      $("#locate_conpact").text("▼ 開く");
+
+  /*********************イベント処理*********************/
+  $('#locate_conpact').click(function() {
+    $('#mapviewDiv').toggle(function(){
+      if ($(this).is(':visible')){
+        $("#locate_conpact").text("▲ 閉じる");
+      } else {
+        $("#locate_conpact").text("▼ 開く");
+      }
+    });
+  });
+
+  //投稿区分の切り替え
+  $('input[name="attachment"]:radio').change(function() {
+    var type = $(this).val();
+    if(type == "image"){
+      $('#upload_images').css('display', 'block');
+      $('#upload_movie').css('display', 'none');
+    }else{
+      $('#upload_images').css('display', 'none');
+      $('#upload_movie').css('display', 'block');
     }
   });
-});
 
-//投稿区分の切り替え
-$('input[name="attachment"]:radio').change(function() {
-  var type = $(this).val();
-  if(type == "image"){
-    $('#upload_images').css('display', 'block');
-    $('#upload_movie').css('display', 'none');
-  }else{
-    $('#upload_images').css('display', 'none');
-    $('#upload_movie').css('display', 'block');
-  }
-});
+  //写真選択
+  $('#imagebtn').click(function() {
+    $('#images-select').click();
+  });
 
-//写真選択
-$('#imagebtn').click(function() {
-  $('#images-select').click();
-});
+  $('#images-select').change(function() {
+    handleImageFilesSelect(this.files);
+  });
 
-$('#images-select').change(function() {
-  handleImageFilesSelect(this.files);
-});
+  //動画選択
+  $('#moviebtn1').click(function() {
+    $('#movie-select1').click();
+  });
 
-//動画選択
-$('#moviebtn1').click(function() {
-  $('#movie-select1').click();
-});
+  $('#moviebtn2').click(function() {
+    $('#movie-select2').click();
+  });
 
-$('#moviebtn2').click(function() {
-  $('#movie-select2').click();
-});
+  $('#moviebtn3').click(function() {
+    $('#movie-select3').click();
+  });
 
-$('#moviebtn3').click(function() {
-  $('#movie-select3').click();
-});
+  $('#movie-select1').change(function() {
+    movieFilesSelect(this.files[0], 1);
+  });
 
-$('#movie-select1').change(function() {
-  movieFilesSelect(this.files[0], 1);
-});
+  $('#movie-select2').change(function() {
+    movieFilesSelect(this.files[0], 2);
+  });
 
-$('#movie-select2').change(function() {
-  movieFilesSelect(this.files[0], 2);
-});
+  $('#movie-select3').change(function() {
+    movieFilesSelect(this.files[0], 3);
+  });
 
-$('#movie-select3').change(function() {
-  movieFilesSelect(this.files[0], 3);
-});
+  //送信ボタンクリック
+  $('#sendbtn').click(function() {
+    var kaishaid = $('#kaishaid').val();
 
-//送信ボタンクリック
-$('#sendbtn').click(function() {
-  var kaishaid = $('#kaishaid').val();
-  
-  if (kaishaid == "") {
-    alert("会社IDが指定されていないため送信できません");
-    return;
-  }
-  
-  var title = $('#title').val();
-  
-  if (title == "") {
-    alert("タイトルは必須です");
-    $('#title').focus();
-    return;
-  }
-  
-  var attachment = $('input[name="attachment"]:checked').val();
-
-  //アタッチメントの選択チェック
-  if (attachment == "image") {
-    var objTBL = document.getElementById("imageGallery_tbl");
-    var count = objTBL.rows.length-1;
-    if (count == 0){
-      alert("写真が選択されていません");
+    if (kaishaid == "") {
+      alert("会社IDが指定されていないため送信できません");
       return;
     }
-  } else {
-    var movie_upload_id_1 = $('#movie_upload_id_1').textContent;
-    var movie_upload_id_2 = $('#movie_upload_id_2').textContent;
-    var movie_upload_id_3 = $('#movie_upload_id_3').textContent;
-    if (movie_upload_id_1 == "" && movie_upload_id_2 == "" && movie_upload_id_3=="") {
-      alert("動画が選択されていません");
+
+    var title = $('#title').val();
+
+    if (title == "") {
+      alert("タイトルは必須です");
+      $('#title').focus();
       return;
     }
+
+    var attachment = $('input[name="attachment"]:checked').val();
+
+    //アタッチメントの選択チェック
+    if (attachment == "image") {
+      var objTBL = document.getElementById("imageGallery_tbl");
+      var count = objTBL.rows.length-1;
+      if (count == 0){
+        alert("写真が選択されていません");
+        return;
+      }
+    } else {
+      var movie_upload_id_1 = $('#movie_upload_id_1').textContent;
+      var movie_upload_id_2 = $('#movie_upload_id_2').textContent;
+      var movie_upload_id_3 = $('#movie_upload_id_3').textContent;
+      if (movie_upload_id_1 == "" && movie_upload_id_2 == "" && movie_upload_id_3=="") {
+        alert("動画が選択されていません");
+        return;
+      }
+    }
+
+    //現在地の指定チェック
+    if (latitude == null || longitude == null){
+      alert("場所が指定されていません");
+      return;
+    }
+    $('#sendbtn').html("送信中");
+
+    add_feature(latitude, longitude, attachment);
+
+  });
+
+  //クリアボタンクリック
+  $('#clearbtn').click(function() {
+    form_clear();
+  });
+
+  //戻る
+  $('#input_form').click(function() {
+    form_clear();
+    $('#formDiv').css('display', 'block');
+    $('#completeDiv').css('display', 'none');
+  });
+
+  /*********************ロジック処理*********************/
+
+  function  handleImageFilesSelect(files) {
+
+    for (var i = 0, f; f = files[i]; i++) {
+      var objTBL = document.getElementById("imageGallery_tbl");
+      if (!objTBL)
+        return;
+
+      var count = objTBL.rows.length;
+
+      // 最終行に新しい行を追加
+      var row = objTBL.insertRow(count);
+
+      compact_image(f, count, row);
+
+      $('#images_label').html(count + "件の写真が選択されました");
+    }
+
+    $('input[type=file]').val('');
   }
 
-  //現在地の指定チェック
-  if (latitude == null || longitude == null){
-    alert("場所が指定されていません");
-    return;
+  async function compact_image(f, count, row) {
+
+    await wait(count*0.5);
+
+    var c1 = row.insertCell(0);
+    var c2 = row.insertCell(1);
+    var c3 = row.insertCell(2);
+    var c4 = row.insertCell(3);
+    var c5 = row.insertCell(4);
+    var c6 = row.insertCell(5);
+
+    c1.innerHTML = '<center><span class="seqno">' + count + '</span></center>';
+    c3.innerHTML = f.name;
+    c5.innerHTML = '<span class="status">読込中</span>';
+    c6.innerHTML = '<center><input class="delbtn" type="button" id="delBtn' + count + '" value="削除" onclick="deleteImageRow(this)"></center>';
+
+    const reader = new FileReader();
+    const imgReader = new Image();
+    const imgWidth = 960;
+    reader.onloadend = () => {
+      imgReader.onload = () => {
+        const imgType = imgReader.src.substring(5, imgReader.src.indexOf(';'));
+        const imgHeight = imgReader.height * (imgWidth / imgReader.width);
+        const canvas = document.createElement('canvas');
+        canvas.width = imgWidth;
+        canvas.height = imgHeight;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(imgReader,0,0,imgWidth,imgHeight);
+
+        canvas.toBlob(function (blob) {
+          var url = URL.createObjectURL(blob);
+
+          c2.innerHTML = '<center><img class="thumb" loading="lazy" height="30px" src="' + url +
+            '" title="' + f.name + '"/></center>';
+          c4.innerHTML =(Math.floor(blob.size/1024/1024*100)/100) + "MB"
+          c5.innerHTML = '<span class="upload_id" hidden></span><span class="status"></span>';
+
+          upload_rowimage(row);
+        });
+
+
+      }
+      imgReader.src = reader.result;
+    }
+    reader.readAsDataURL(f);
+
   }
-  $('#sendbtn').html("送信中");
 
-  add_feature(latitude, longitude, attachment);
-  
-});
-
-//クリアボタンクリック
-$('#clearbtn').click(function() {
-  form_clear();
-});
-
-//戻る
-$('#input_form').click(function() {
-  form_clear();
-  $('#formDiv').css('display', 'block');
-  $('#completeDiv').css('display', 'none');
-});
-
-/*********************ロジック処理*********************/
-
-function  handleImageFilesSelect(files) {
-
-  for (var i = 0, f; f = files[i]; i++) {
+  function deleteAllImageRow() {
     var objTBL = document.getElementById("imageGallery_tbl");
     if (!objTBL)
       return;
-
-    var count = objTBL.rows.length;
-
-    // 最終行に新しい行を追加
-    var row = objTBL.insertRow(count);
-
-    compact_image(f, count, row);
-
-    $('#images_label').html(count + "件の写真が選択されました");
-  }
-
-  $('input[type=file]').val('');
-}
-
-async function compact_image(f, count, row) {
-
-  await wait(count*0.5);
-
-  var c1 = row.insertCell(0);
-  var c2 = row.insertCell(1);
-  var c3 = row.insertCell(2);
-  var c4 = row.insertCell(3);
-  var c5 = row.insertCell(4);
-  var c6 = row.insertCell(5);
-
-  c1.innerHTML = '<center><span class="seqno">' + count + '</span></center>';
-  c3.innerHTML = f.name;
-  c5.innerHTML = '<span class="status">読込中</span>';
-  c6.innerHTML = '<center><input class="delbtn" type="button" id="delBtn' + count + '" value="削除" onclick="deleteImageRow(this)"></center>';
-
-  const reader = new FileReader();
-  const imgReader = new Image();
-  const imgWidth = 960;
-  reader.onloadend = () => {
-    imgReader.onload = () => {
-      const imgType = imgReader.src.substring(5, imgReader.src.indexOf(';'));
-      const imgHeight = imgReader.height * (imgWidth / imgReader.width);
-      const canvas = document.createElement('canvas');
-      canvas.width = imgWidth;
-      canvas.height = imgHeight;
-      const ctx = canvas.getContext('2d');
-      ctx.drawImage(imgReader,0,0,imgWidth,imgHeight);
-
-      canvas.toBlob(function (blob) {
-        var url = URL.createObjectURL(blob);
-
-        c2.innerHTML = '<center><img class="thumb" loading="lazy" height="30px" src="' + url +
-          '" title="' + f.name + '"/></center>';
-        c4.innerHTML =(Math.floor(blob.size/1024/1024*100)/100) + "MB"
-        c5.innerHTML = '<span class="upload_id" hidden></span><span class="status"></span>';
-
-        upload_rowimage(row);
-      });
-
-
-    }
-    imgReader.src = reader.result;
-  }
-  reader.readAsDataURL(f);
-
-}
-
-function deleteAllImageRow() {
-  var objTBL = document.getElementById("imageGallery_tbl");
-  if (!objTBL)
-    return;
-  var tableRows = objTBL.getElementsByTagName('tr');
-  var rowCount = tableRows.length;
-
-  while (objTBL.rows.length > 1) objTBL.deleteRow(-1);
-
-  $('#images_label').html("");
-}
-
-function deleteImageRow(obj) {
-  if (!obj)
-    return;
-
-  var objTR = obj.parentNode.parentNode.parentNode;
-  var objTBL = objTR.parentNode.parentNode;
-
-  if (objTBL)
-    objTBL.deleteRow(objTR.sectionRowIndex);
-
-  var tagElements = document.getElementsByTagName("span");
-  if (!tagElements)
-    return false;
-
-  var seq = 1;
-  for (var i = 0; i < tagElements.length; i++)
-  {
-    if (tagElements[i].className.match("seqno"))
-      tagElements[i].innerHTML = seq++;
-  }
-
-  var tagElements = document.getElementsByTagName("input");
-  if (!tagElements)
-    return false;
-
-  seq = 1;
-  for (var i = 0; i < tagElements.length; i++)
-  {
-    if (tagElements[i].className.match("delbtn"))
-    {
-      tagElements[i].setAttribute("id", "delBtn" + seq);
-      ++seq;
-    }
-  }
-
-  $('#images_label').html(objTBL.rows.length-1 + "件の写真が選択されました");
-}
-
-function upload_rowimage(row) {
-  var filename = row.children[2].innerText;
-  var url = row.children[1].firstElementChild.firstElementChild.src;
-
-  var upload_id_span = row.getElementsByClassName('upload_id')[0];
-  var status_span = row.getElementsByClassName('status')[0];
-
-  async function getImageData(url, filename, upload_id_span, status_span) {
-    status_span.innerText = "送信中　0%";
-
-    const res = await fetch(url);
-    const blob = await res.blob();
-
-    url = feature_url + "/uploads/upload";
-
-    var upload_file = new File([blob], filename);
-
-    var form = new FormData();
-    form.set('f','json');
-    form.set('file', upload_file);
-    form.set('token', token);
-
-    var promise = $.ajax({
-      url: url,
-      type: "POST",
-      data: form,
-      processData: false,
-      contentType: false,
-      dataType: 'json',
-      context: status_span,
-      async: true,
-      xhr : function(){
-        var XHR = $.ajaxSettings.xhr();
-        XHR.upload.addEventListener('progress',function(e){
-          var progre = parseInt(e.loaded/e.total * 100);
-          status_span.innerText = "送信中　" + progre + "%";
-        });
-        return XHR;
-      },
-      success: function(data) {
-        status_span.innerText = "送信完了";
-        upload_id_span.innerText = data.item.itemID;
-        console.log(status_span + ":" + data.item.itemID);
-      },
-      error: function(data) {
-        console.log(data);
-      }
-    });
-  }
-  getImageData(url, filename, upload_id_span, status_span);
-}
-
-function  movieFilesSelect(file, index) {
-  //入力不可に設定
-  form_disabled(true);
-
-  var str_index = String(index);
-
-  $('#movie_filename_' + str_index).html(file.name);
-  $('#movie_size_' 
-    + str_index).html((Math.floor(file.size/1024/1024*100)/100) + "MB");
-
-  registerBlobData(file, index)
-  $('input[type=file]').val('');
-
-}
-
-function registerBlobData(f, index) {
-
-  var form = new FormData();
-  form.set('f','json');
-  form.set('itemName', f.name);
-  form.set('token', token);
-
-  $.ajax({
-    url: register_url,
-    type: "POST",
-    data: form,
-    processData: false,
-    contentType: false,
-    dataType: 'json',
-    async: false
-  }).done(function(data) {
-    uploadBlobData(data.item.itemID, f, index);
-  }).fail(function(data) {
-    console.log(data);
-  });
-}
-
-async function uploadBlobData(upload_id, file, index) {
-
-  var str_index = String(index);
-
-  var part_url = feature_url + "/uploads/" + upload_id + "/uploadPart";
-  var commit_url = feature_url + "/uploads/" + upload_id + "/commit";
-
-  var totalBytes = file.size;
-
-  // チャンク分割数
-  var chunkCount = Math.ceil(totalBytes / chunkSize);
-
-  var readBytes = 0;
-  var tasks = [];
-  var end_task = [];
-
-  var reader = new FileReader();
-  reader.onloadend = function(evt) {
-    if (evt.target.readyState != FileReader.DONE) {
-      return;
-    }
-
-    var binaryData = evt.target.result;
-
-    var file_property_bag = {
-      type: file.type
-    };
-
-    var items = [];
-    for(let i = 0; i < chunkCount; i++){
-      var blob = null;
-
-      if (i == chunkCount-1){
-        blob = binaryData.slice(readBytes, totalBytes);
-      } else{
-        blob = binaryData.slice(readBytes, readBytes + chunkSize);
-      }
-      readBytes = readBytes + chunkSize;
-
-      var cut_file = new File([blob], file.name, file_property_bag);
-
-      items.push({
-        index: i,
-        file: cut_file,
-        progre: 0,
-        status: 0
-      });
-    }
-
-    upload_parts_func = (datas, callback) => {
-      let count = 0;
-      let done = 0;
-
-      let upload_part_func = async (count) => {
-        let data = datas[count];
-
-        if (count > 1) {
-          while (datas[count-1].status == 0){
-            await wait(0.5);
-          }
-        }
-        
-        var form = new FormData();
-        form.set('f','json');
-        form.set('partId', data.index);
-        form.set('file', data.file);
-        form.set('token', token);
-
-        var promise = $.ajax({
-          url: part_url,
-          enctype: 'multipart/form-data',
-          type: "POST",
-          data: form,
-          processData: false,
-          contentType: false,
-          dataType: 'json',
-          async: true,
-          //context: data.index,
-          xhr : function(){
-            var XHR = $.ajaxSettings.xhr();
-            XHR.upload.addEventListener('progress',function(e){
-              var progre = parseInt(e.loaded/e.total * 100);
-
-              datas[count].progre = progre;
-              console.log("upload_part_func progre:index" + datas[count].index + ":" + datas[count].progre + "%");
-              
-              var stop_status = 100 * datas.length;
-              var sum_status = 0;
-              for (i=0;i<datas.length;i++) {
-                sum_status = sum_status + datas[i].progre;
-              }
-              progre = parseInt(sum_status/stop_status * 100);
-              $('#movie_status_' + str_index).html("送信中　" + progre + "%");
-            });
-            return XHR;
-          },
-          success: function(data) {
-            console.log("upload_part_func end:index" + datas[count].index);
-            
-            datas[count].status = 1;
-
-            var cnt = 0;
-            for (i=0;i<datas.length;i++) {
-              cnt = cnt + datas[i].status;
-            }
-
-            if (cnt == datas.length) {
-              callback();
-            }
-          },
-          error: function(data) {
-           console.log(data);
-          }
-        });
-
-        if (count >= datas.length - 1) {
-          return;
-        }
-
-        upload_part_func(count + 1);
-      };
-
-      upload_part_func(count);
-    };
-
-    upload_parts_func(items, () => commitBlobData(upload_id, index));
-  }
-
-  reader.readAsArrayBuffer(file);
-}
-
-async function commitBlobData(upload_id, index) {
-
-  console.log("commit start");
-  var str_index = String(index);
-
-  //await wait(10);
-
-  var commit_url = feature_url + "/uploads/" + upload_id + "/commit";
-
-  var form = new FormData();
-  form.set('f','json');
-  form.set('token', token);
-
-  $.ajax({
-    url: commit_url,
-    type: "POST",
-    data: form,
-    processData: false,
-    contentType: false,
-    dataType: 'json',
-    async: true
-  }).done(function(data) {
-    $('#movie_status_' + str_index).html("送信完了");
-    $('#movie_upload_id_' + str_index).html(upload_id);
-
-    //入力可に設定
-    form_disabled(false);
-    console.log(data);
-
-  }).fail(function(data) {
-    console.log(data);
-  });
-}
-
-function deleteAllMovieRow() {
-  $('#movie_filename_1').html("");
-  $('#movie_size_1').html("");
-  $('#movie_status_1').html("");
-  $('#movie_upload_id_1').html("");
-  $('#movie-select1').val("");
-  $('#movie_filename_2').html("");
-  $('#movie_size_2').html("");
-  $('#movie_status_2').html("");
-  $('#movie_upload_id_2').html("");
-  $('#movie-select2').val("");
-  $('#movie_filename_3').html("");
-  $('#movie_size_3').html("");
-  $('#movie_status_3').html("");
-  $('#movie_upload_id_3').html("");
-  $('#movie-select3').val("");
-}
-
-function add_feature(lat, long, flg) {
-  form_disabled(true);
-  
-  var kbn = 0;
-  if (flg == "movie") {
-    kbn = 1;
-  }
-  url = feature_url + "/" + layer_id + "/addFeatures";
-  
-  var feature = {
-    "geometry": {
-      "x": long,
-      "y": lat,
-      "spatialReference" : {"wkid" : 4326}
-    },
-    "attributes": {
-      "KaishaID": $('#kaishaid').val(),
-      "Kbn": kbn,
-      "Title": $('#title').val(),
-      "Naiyo": $('#naiyo').val(),
-      "Jusho": $('#jusho').val(),
-      "Bikou": $('#bikou').val(),
-      "Status": 0
-    }
-  };
-
-  var form = new FormData();
-  form.set('f','json');
-  form.set('features', JSON.stringify([feature]));
-  form.set('token', token);
-
-  $.ajax({
-    url: url,
-    type: "POST",
-    data: form,
-    processData: false,
-    contentType: false,
-    dataType: 'json',
-    async: false
-  }).done(function(data) {
-    console.log(data);
-    append_attachments(data.addResults[0].objectId, flg);
-  }).fail(function(data) {
-    console.log(data);
-  });
-}
-
-function append_attachments(oid, flg) {
-
-  var uploads = [];
-  
-  //画像ファイル
-  if (flg == "image") {
-    var objTBL = document.getElementById("imageGallery_tbl");
     var tableRows = objTBL.getElementsByTagName('tr');
-
     var rowCount = tableRows.length;
 
-    var uploads = [];
-    for (var i = 1; i < tableRows.length; i++) {
-      uploads.push({
-        id: tableRows[i].getElementsByClassName('upload_id')[0].innerText,
-        status: 0
-      });
-    }
-  //動画ファイル
-  } else {
-    var content = $('#movie_upload_id_1');
-    if (content.length != 0 && content[0].textContent != "") {
-      uploads.push({
-        id: content[0].textContent,
-        status: 0
-      });
-    }
-    var content = $('#movie_upload_id_2');
-    if (content.length != 0 && content[0].textContent != "") {
-      uploads.push({
-        id: content[0].textContent,
-        status: 0
-      });
-    }
-    var content = $('#movie_upload_id_3');
-    if (content.length != 0 && content[0].textContent != "") {
-      uploads.push({
-        id: content[0].textContent,
-        status: 0
-      });
-    }    
+    while (objTBL.rows.length > 1) objTBL.deleteRow(-1);
+
+    $('#images_label').html("");
   }
-  
-  append_attachents(oid, uploads)
-}
 
-function append_attachents(oid, uploads) {
-  
-  var url = feature_url + "/" + layer_id + "/" + oid + "/addAttachment";
+  function deleteImageRow(obj) {
+    if (!obj)
+      return;
 
-  append_image_attachents = (uploads, callback) => {
-    let count = 0;
-    let done = 0;
+    var objTR = obj.parentNode.parentNode.parentNode;
+    var objTBL = objTR.parentNode.parentNode;
 
-    let append_image_attachent = async (count) => {
-      let upload = uploads[count];
+    if (objTBL)
+      objTBL.deleteRow(objTR.sectionRowIndex);
 
-      var form = new FormData();
+    var tagElements = document.getElementsByTagName("span");
+    if (!tagElements)
+      return false;
+
+    var seq = 1;
+    for (var i = 0; i < tagElements.length; i++)
+    {
+      if (tagElements[i].className.match("seqno"))
+        tagElements[i].innerHTML = seq++;
+    }
+
+    var tagElements = document.getElementsByTagName("input");
+    if (!tagElements)
+      return false;
+
+    seq = 1;
+    for (var i = 0; i < tagElements.length; i++)
+    {
+      if (tagElements[i].className.match("delbtn"))
+      {
+        tagElements[i].setAttribute("id", "delBtn" + seq);
+        ++seq;
+      }
+    }
+
+    $('#images_label').html(objTBL.rows.length-1 + "件の写真が選択されました");
+  }
+
+  function upload_rowimage(row) {
+    var filename = row.children[2].innerText;
+    var url = row.children[1].firstElementChild.firstElementChild.src;
+
+    var upload_id_span = row.getElementsByClassName('upload_id')[0];
+    var status_span = row.getElementsByClassName('status')[0];
+
+    async function getImageData(url, filename, upload_id_span, status_span) {
+      status_span.innerText = "送信中　0%";
+
+      const res = await fetch(url);
+      const blob = await res.blob();
+
+      url = feature_url + "/uploads/upload";
+
+      var upload_file = new File([blob], filename);
+
       var form = new FormData();
       form.set('f','json');
-      form.set('uploadId', upload.id);
+      form.set('file', upload_file);
       form.set('token', token);
-      
+
       var promise = $.ajax({
         url: url,
         type: "POST",
@@ -1299,103 +941,466 @@ function append_attachents(oid, uploads) {
         processData: false,
         contentType: false,
         dataType: 'json',
-        async: true
-      }).done(function(data) {
-        console.log(data);
-        
-        uploads[count].status = 1;
-        
-        var cnt = 0;
-        for (i=0;i<uploads.length;i++) {
-          cnt = cnt + uploads[i].status;
+        context: status_span,
+        async: true,
+        xhr : function(){
+          var XHR = $.ajaxSettings.xhr();
+          XHR.upload.addEventListener('progress',function(e){
+            var progre = parseInt(e.loaded/e.total * 100);
+            status_span.innerText = "送信中　" + progre + "%";
+          });
+          return XHR;
+        },
+        success: function(data) {
+          status_span.innerText = "送信完了";
+          upload_id_span.innerText = data.item.itemID;
+          console.log(status_span + ":" + data.item.itemID);
+        },
+        error: function(data) {
+          console.log(data);
         }
-
-        if (cnt == uploads.length) {
-          callback();
-        }
-      }).fail(function(data) {
-        console.log(data);
       });
+    }
+    getImageData(url, filename, upload_id_span, status_span);
+  }
 
-      if (count >= uploads.length - 1) {
+  function  movieFilesSelect(file, index) {
+    //入力不可に設定
+    form_disabled(true);
+
+    var str_index = String(index);
+
+    $('#movie_filename_' + str_index).html(file.name);
+    $('#movie_size_' 
+      + str_index).html((Math.floor(file.size/1024/1024*100)/100) + "MB");
+
+    registerBlobData(file, index)
+    $('input[type=file]').val('');
+
+  }
+
+  function registerBlobData(f, index) {
+
+    var form = new FormData();
+    form.set('f','json');
+    form.set('itemName', f.name);
+    form.set('token', token);
+
+    $.ajax({
+      url: register_url,
+      type: "POST",
+      data: form,
+      processData: false,
+      contentType: false,
+      dataType: 'json',
+      async: false
+    }).done(function(data) {
+      uploadBlobData(data.item.itemID, f, index);
+    }).fail(function(data) {
+      console.log(data);
+    });
+  }
+
+  async function uploadBlobData(upload_id, file, index) {
+
+    var str_index = String(index);
+
+    var part_url = feature_url + "/uploads/" + upload_id + "/uploadPart";
+    var commit_url = feature_url + "/uploads/" + upload_id + "/commit";
+
+    var totalBytes = file.size;
+
+    // チャンク分割数
+    var chunkCount = Math.ceil(totalBytes / chunkSize);
+
+    var readBytes = 0;
+    var tasks = [];
+    var end_task = [];
+
+    var reader = new FileReader();
+    reader.onloadend = function(evt) {
+      if (evt.target.readyState != FileReader.DONE) {
         return;
       }
-      append_image_attachent(count + 1);
+
+      var binaryData = evt.target.result;
+
+      var file_property_bag = {
+        type: file.type
+      };
+
+      var items = [];
+      for(let i = 0; i < chunkCount; i++){
+        var blob = null;
+
+        if (i == chunkCount-1){
+          blob = binaryData.slice(readBytes, totalBytes);
+        } else{
+          blob = binaryData.slice(readBytes, readBytes + chunkSize);
+        }
+        readBytes = readBytes + chunkSize;
+
+        var cut_file = new File([blob], file.name, file_property_bag);
+
+        items.push({
+          index: i,
+          file: cut_file,
+          progre: 0,
+          status: 0
+        });
+      }
+
+      upload_parts_func = (datas, callback) => {
+        let count = 0;
+        let done = 0;
+
+        let upload_part_func = async (count) => {
+          let data = datas[count];
+
+          if (count > 1) {
+            while (datas[count-1].status == 0){
+              await wait(0.5);
+            }
+          }
+
+          var form = new FormData();
+          form.set('f','json');
+          form.set('partId', data.index);
+          form.set('file', data.file);
+          form.set('token', token);
+
+          var promise = $.ajax({
+            url: part_url,
+            enctype: 'multipart/form-data',
+            type: "POST",
+            data: form,
+            processData: false,
+            contentType: false,
+            dataType: 'json',
+            async: true,
+            //context: data.index,
+            xhr : function(){
+              var XHR = $.ajaxSettings.xhr();
+              XHR.upload.addEventListener('progress',function(e){
+                var progre = parseInt(e.loaded/e.total * 100);
+
+                datas[count].progre = progre;
+                console.log("upload_part_func progre:index" + datas[count].index + ":" + datas[count].progre + "%");
+
+                var stop_status = 100 * datas.length;
+                var sum_status = 0;
+                for (i=0;i<datas.length;i++) {
+                  sum_status = sum_status + datas[i].progre;
+                }
+                progre = parseInt(sum_status/stop_status * 100);
+                $('#movie_status_' + str_index).html("送信中　" + progre + "%");
+              });
+              return XHR;
+            },
+            success: function(data) {
+              console.log("upload_part_func end:index" + datas[count].index);
+
+              datas[count].status = 1;
+
+              var cnt = 0;
+              for (i=0;i<datas.length;i++) {
+                cnt = cnt + datas[i].status;
+              }
+
+              if (cnt == datas.length) {
+                callback();
+              }
+            },
+            error: function(data) {
+              console.log(data);
+            }
+          });
+
+          if (count >= datas.length - 1) {
+            return;
+          }
+
+          upload_part_func(count + 1);
+        };
+
+        upload_part_func(count);
+      };
+
+      upload_parts_func(items, () => commitBlobData(upload_id, index));
+    }
+
+    reader.readAsArrayBuffer(file);
+  }
+
+  async function commitBlobData(upload_id, index) {
+
+    console.log("commit start");
+    var str_index = String(index);
+
+    //await wait(10);
+
+    var commit_url = feature_url + "/uploads/" + upload_id + "/commit";
+
+    var form = new FormData();
+    form.set('f','json');
+    form.set('token', token);
+
+    $.ajax({
+      url: commit_url,
+      type: "POST",
+      data: form,
+      processData: false,
+      contentType: false,
+      dataType: 'json',
+      async: true
+    }).done(function(data) {
+      $('#movie_status_' + str_index).html("送信完了");
+      $('#movie_upload_id_' + str_index).html(upload_id);
+
+      //入力可に設定
+      form_disabled(false);
+      console.log(data);
+
+    }).fail(function(data) {
+      console.log(data);
+    });
+  }
+
+  function deleteAllMovieRow() {
+    $('#movie_filename_1').html("");
+    $('#movie_size_1').html("");
+    $('#movie_status_1').html("");
+    $('#movie_upload_id_1').html("");
+    $('#movie-select1').val("");
+    $('#movie_filename_2').html("");
+    $('#movie_size_2').html("");
+    $('#movie_status_2').html("");
+    $('#movie_upload_id_2').html("");
+    $('#movie-select2').val("");
+    $('#movie_filename_3').html("");
+    $('#movie_size_3').html("");
+    $('#movie_status_3').html("");
+    $('#movie_upload_id_3').html("");
+    $('#movie-select3').val("");
+  }
+
+  function add_feature(lat, long, flg) {
+    form_disabled(true);
+
+    var kbn = 0;
+    if (flg == "movie") {
+      kbn = 1;
+    }
+    url = feature_url + "/" + layer_id + "/addFeatures";
+
+    var feature = {
+      "geometry": {
+        "x": long,
+        "y": lat,
+        "spatialReference" : {"wkid" : 4326}
+      },
+      "attributes": {
+        "KaishaID": $('#kaishaid').val(),
+        "Kbn": kbn,
+        "Title": $('#title').val(),
+        "Naiyo": $('#naiyo').val(),
+        "Jusho": $('#jusho').val(),
+        "Bikou": $('#bikou').val(),
+        "Status": 0
+      }
     };
-    append_image_attachent(count);
-  };
-  
-  send_finally = () => {
-    //投稿後画面切り替え
+
+    var form = new FormData();
+    form.set('f','json');
+    form.set('features', JSON.stringify([feature]));
+    form.set('token', token);
+
+    $.ajax({
+      url: url,
+      type: "POST",
+      data: form,
+      processData: false,
+      contentType: false,
+      dataType: 'json',
+      async: false
+    }).done(function(data) {
+      console.log(data);
+      append_attachments(data.addResults[0].objectId, flg);
+    }).fail(function(data) {
+      console.log(data);
+    });
+  }
+
+  function append_attachments(oid, flg) {
+
+    var uploads = [];
+
+    //画像ファイル
+    if (flg == "image") {
+      var objTBL = document.getElementById("imageGallery_tbl");
+      var tableRows = objTBL.getElementsByTagName('tr');
+
+      var rowCount = tableRows.length;
+
+      var uploads = [];
+      for (var i = 1; i < tableRows.length; i++) {
+        uploads.push({
+          id: tableRows[i].getElementsByClassName('upload_id')[0].innerText,
+          status: 0
+        });
+      }
+      //動画ファイル
+    } else {
+      var content = $('#movie_upload_id_1');
+      if (content.length != 0 && content[0].textContent != "") {
+        uploads.push({
+          id: content[0].textContent,
+          status: 0
+        });
+      }
+      var content = $('#movie_upload_id_2');
+      if (content.length != 0 && content[0].textContent != "") {
+        uploads.push({
+          id: content[0].textContent,
+          status: 0
+        });
+      }
+      var content = $('#movie_upload_id_3');
+      if (content.length != 0 && content[0].textContent != "") {
+        uploads.push({
+          id: content[0].textContent,
+          status: 0
+        });
+      }    
+    }
+
+    append_attachents(oid, uploads)
+  }
+
+  function append_attachents(oid, uploads) {
+
+    var url = feature_url + "/" + layer_id + "/" + oid + "/addAttachment";
+
+    append_image_attachents = (uploads, callback) => {
+      let count = 0;
+      let done = 0;
+
+      let append_image_attachent = async (count) => {
+        let upload = uploads[count];
+
+        var form = new FormData();
+        var form = new FormData();
+        form.set('f','json');
+        form.set('uploadId', upload.id);
+        form.set('token', token);
+
+        var promise = $.ajax({
+          url: url,
+          type: "POST",
+          data: form,
+          processData: false,
+          contentType: false,
+          dataType: 'json',
+          async: true
+        }).done(function(data) {
+          console.log(data);
+
+          uploads[count].status = 1;
+
+          var cnt = 0;
+          for (i=0;i<uploads.length;i++) {
+            cnt = cnt + uploads[i].status;
+          }
+
+          if (cnt == uploads.length) {
+            callback();
+          }
+        }).fail(function(data) {
+          console.log(data);
+        });
+
+        if (count >= uploads.length - 1) {
+          return;
+        }
+        append_image_attachent(count + 1);
+      };
+      append_image_attachent(count);
+    };
+
+    send_finally = () => {
+      //投稿後画面切り替え
+      form_disabled(false);
+      $('#formDiv').css('display', 'none');
+      $('#completeDiv').css('display', 'block');
+      $("html,body").animate({scrollTop:0},"300");
+
+    }
+
+    append_image_attachents(uploads, () => send_finally());
+  }
+
+  function append_movie_attachent_upload_id(oid, upload_id) {
+    url = feature_url + "/" + layer_id + "/" + oid + "/addAttachment";
+
+    var form = new FormData();
+    form.set('f','json');
+    form.set('uploadId', upload_id);
+    form.set('token', token);
+
+    $.ajax({
+      url: url,
+      type: "POST",
+      data: form,
+      processData: false,
+      contentType: false,
+      dataType: 'json',
+      async: false
+    }).done(function(data) {
+      console.log(data);
+    }).fail(function(data) {
+      console.log(data);
+    });
+  }
+
+  function form_clear() {
     form_disabled(false);
-    $('#formDiv').css('display', 'none');
-    $('#completeDiv').css('display', 'block');
-    $("html,body").animate({scrollTop:0},"300");
-    
+
+    if(navigator.geolocation) {
+      locateBtn.locate();
+    } else {
+      latitude = init_latitude;
+      longitude = init_longitude;
+
+      jusho = "";
+      $('#jusho').val("");
+    }
+
+    $('#title').val("");
+    $('#naiyo').val("");
+    $('#bikou').val("");
+    view.graphics.removeAll();
+
+    $('#gridDiv').html("場所を指定してください");
+
+    deleteAllImageRow();
+    deleteAllMovieRow();
+    $('#sendbtn').html("送信");
   }
 
-  append_image_attachents(uploads, () => send_finally());
-}
 
-function append_movie_attachent_upload_id(oid, upload_id) {
-  url = feature_url + "/" + layer_id + "/" + oid + "/addAttachment";
+  const wait = (sec) => {
+    return new Promise((resolve, reject) => {
+      setTimeout(resolve, sec*1000);
+    });
+  };
 
-  var form = new FormData();
-  form.set('f','json');
-  form.set('uploadId', upload_id);
-  form.set('token', token);
-
-  $.ajax({
-    url: url,
-    type: "POST",
-    data: form,
-    processData: false,
-    contentType: false,
-    dataType: 'json',
-    async: false
-  }).done(function(data) {
-    console.log(data);
-  }).fail(function(data) {
-    console.log(data);
-  });
-}
-
-function form_clear() {
-  form_disabled(false);
-
-  if(navigator.geolocation) {
-    locateBtn.locate();
-  } else {
-    latitude = init_latitude;
-    longitude = init_longitude;
-    
-    jusho = "";
-    $('#jusho').val("");
+  function form_disabled(disabled) {
+    $('input').prop('disabled', disabled);
+    $('button').prop('disabled', disabled);
   }
-  
-  $('#title').val("");
-  $('#naiyo').val("");
-  $('#bikou').val("");
-  view.graphics.removeAll();
-
-  $('#gridDiv').html("場所を指定してください");
-  
-  deleteAllImageRow();
-  deleteAllMovieRow();
-  $('#sendbtn').html("送信");
-}
 
 
-const wait = (sec) => {
-  return new Promise((resolve, reject) => {
-    setTimeout(resolve, sec*1000);
-  });
-};
-
-function form_disabled(disabled) {
-  $('input').prop('disabled', disabled);
-  $('button').prop('disabled', disabled);
-}
+});
     </script>
 
   
