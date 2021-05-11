@@ -1595,8 +1595,13 @@ require([
   }
   
   function addattachent_upload_file(oid, file) {
-
-    var att_html = file.name + "を追加しています";
+    
+    if (file.size >= 10 * 1024 *1024) {
+      alert("10MB以上のファイルは添付できません");
+      return;
+    }
+    
+    var att_html = "<br/>" + file.name + "を追加しています";
     $('#attachmentlistDiv').append(att_html);
     
     url = push_feature_url + "/" + layer_id + "/" + oid + "/addAttachment";
@@ -1621,7 +1626,7 @@ require([
       console.log(data);
     });
   }
-
+  
   function form_clear() {
     form_disabled(false);
 
@@ -1937,17 +1942,21 @@ var historyTable = {
       
       for(var i = 0; i< attachments.length; i++) {
         var att_name = attachments[i].name;
-        var att_url = view_feature_url + '/' + layer_id + '/' + objectid + '/attachments/' + attachments[i].id + '?token=' + this.token;
+        var att_id = attachments[i].id;
+        var att_url = view_feature_url + '/' + layer_id + '/' + objectid + '/attachments/' + att_id + '?token=' + this.token;
         var contentType = attachments[i].contentType;
         var keywords = attachments[i].keywords;
         
         if (contentType.indexOf('video') !== -1) {
-          att_html += att_name + '<br/><video class="view_gallery" src="'+ att_url + '" controls width="100px"></video><br/><br/>';
+          att_html += att_name + '<br/><video class="view_gallery" src="'+ att_url + '" controls width="100px"></video><br/>';
         } else if (contentType.indexOf('image') !== -1) {
-          att_html += att_name + '<br/><img class="view_gallery" src="'+ att_url + '" width="100px"></img><br/><br/>';
+          att_html += att_name + '<br/><img class="view_gallery" src="'+ att_url + '" width="100px"></img><br/>';
         } else {
-          att_html += att_name + '<br/><a target="_blank" rel="noopener noreferrer"  href="'+ att_url + '">ダウンロード</a><br/><br/>';
+          att_html += att_name + '<br/><a target="_blank" rel="noopener noreferrer"  href="'+ att_url + '">ダウンロード</a><br/>';
         } 
+        
+        att_html += '<input class="delbtn" type="button" id="delBtn' + att_id + '" value="削除" onclick="historyTable.deleteattachent(' + objectid + ', ' + att_id + ')"/>';
+        att_html += '<br/><br/>'
       }
       
       $('#attachmentlistDiv').html(att_html);
@@ -1955,7 +1964,30 @@ var historyTable = {
     }).fail(function(data) {
       console.log(data);
     });
-  },  
+  }, 
+  deleteattachent:function(oid, attachmentid) {
+    url = push_feature_url + "/" + layer_id + "/" + oid + "/deleteAttachments";
+
+    var form = new FormData();
+    form.set('f','json');
+    form.set('attachmentIds', attachmentid);
+    form.set('token', token);
+
+    $.ajax({
+      url: url,
+      type: "POST",
+      data: form,
+      processData: false,
+      contentType: false,
+      dataType: 'json',
+      async: true
+    }).done(function(data) {
+      historyTable.viewattachment(oid);
+      console.log(data);
+    }).fail(function(data) {
+      console.log(data);
+    });
+  },
   deleteRow:function(objectid) {
 
     if (!window.confirm('削除しますか？')){
