@@ -6,6 +6,7 @@
 <head>
 
   <meta charset="UTF-8">
+
   <title>attachment_upload_v06</title>
   
   
@@ -29,6 +30,14 @@
     font-family: 'Arial', sans-serif;
   }
 
+  #sign-in {
+    width: 60%;
+    min-width: 150px;
+    height: 120px;
+    font-size: 24px;
+    margin: 35px;
+    border-radius: 25px;
+  }
   #titlePanel {
     height: 30px;
     color: white;
@@ -222,6 +231,15 @@
     width: 100%;
     font-family: 'Arial', sans-serif;
     padding-bottom: 50px;
+  }
+  
+  #sign-in {
+    width: 60%;
+    min-width: 150px;
+    height:80px;
+    font-size: 24px;
+    margin: 35px;
+    border-radius: 25px;
   }
   
   #titlePanel {
@@ -431,12 +449,12 @@
     <div id="titlePanel" style="display: block; padding: 5px; text-align: center;">しくつ君投稿アプリ
     </div>
     <div id="anonymousPanel" style="display: block; padding: 5px; text-align: center;">
-      <button id="sign-in" class="action">サインイン</button>
+      <button id="sign-in" class="sign-in-btn">サインイン</button>
     </div>
-    <div id="personalizedPanel" style="display: none; padding: 5px; text-align: center;">
+    <!--div id="personalizedPanel" style="display: none; padding: 5px; text-align: center;">
       <span id="userId" style="font-weight: bold;"></span>
       <button id="sign-out" class="action">サインアウト</button>
-    </div>
+    </div-->
     <div id="mainDiv" style="display: none;">
       <button id="show_form" class="esri-icon-edit">
         投稿する
@@ -538,14 +556,6 @@
 
     </div>
     <div id="viewformDiv" style="display: none;">
-      <div id="viewheaderbuttonDiv" style="display: flex">
-        <button id="editform_show" class="esri-icon-edit">
-          登録情報の編集
-        </button>
-        <button id="edit_send" style="width:150px;height:40px;display: none;">登録</button>
-        <button id="edit_cancel" style="width:150px;height:40px;display: none;">キャンセル</button>
-      </div>
-      <br/><br/>
       <label>タイトル</label><font color="red">*</font><br/><input id="viewtitle" type="text" class="input_text" disabled/><br/><br/>
       <label>投稿内容</label><br/><input id="viewnaiyo" type="text" class="input_text" disabled/><br/><br/>
       <label>場所</label><font color="red">*</font><button class="locate_conpact">▲ 閉じる</button><br/>
@@ -553,6 +563,14 @@
       <label>住所</label><br/><input id="viewjusho" type="text" class="input_text" disabled/><br/><br/>
       <label>備考</label><br/><input id="viewbikou" type="text" class="input_text" disabled/>
       <input id="viewobjectid" type="text" class="input_text" hidden/>
+      <br/><br/>
+      <div id="viewheaderbuttonDiv" style="display: flex">
+        <button id="editform_show" class="esri-icon-edit">
+          登録情報の編集
+        </button>
+        <button id="edit_send" style="width:150px;height:40px;display: none;">登録</button>
+        <button id="edit_cancel" style="width:150px;height:40px;display: none;">キャンセル</button>
+      </div>
       <br/><br/>
       <label>添付ファイル</label><br/>
       <div id="attachmentlistDiv"></div>
@@ -641,14 +659,16 @@ require([
     identityManager.getCredential(portalUrl);
   });
 
+  /*
   $('#sign-out').click(function() {
     identityManager.destroyCredentials();
     window.location.reload();
   });
+  */
 
   identityManager.checkSignInStatus(portalUrl).then(function() {
     $('#anonymousPanel').css('display', 'none');
-    $('#personalizedPanel').css('display', 'block');
+    //$('#personalizedPanel').css('display', 'block');
     displayForm();
   });
 
@@ -667,7 +687,7 @@ require([
           identityManager.destroyCredentials();
           alert("システムを利用できるユーザではありません");
           $('#anonymousPanel').css('display', 'block');
-          $('#personalizedPanel').css('display', 'none');
+          //$('#personalizedPanel').css('display', 'none');
           return;
         }
 
@@ -1576,9 +1596,8 @@ require([
   
   function addattachent_upload_file(oid, file) {
 
-    var att_html = $('#attachmentlistDiv').html();
-    att_html += file.name + "を追加しています";
-    $('#attachmentlistDiv').html(att_html);
+    var att_html = file.name + "を追加しています";
+    $('#attachmentlistDiv').append(att_html);
     
     url = push_feature_url + "/" + layer_id + "/" + oid + "/addAttachment";
 
@@ -1870,8 +1889,11 @@ var historyTable = {
           center: [features[0].geometry.x, features[0].geometry.y],
           zoom: 15
         });
-      }
 
+        latitude = features[0].geometry.y;
+        longitude = features[0].geometry.x;
+      }
+      
       $('#viewtitle').val(features[0].attributes["Title"]);
       $('#viewnaiyo').val(features[0].attributes["Naiyo"]);
       $('#viewjusho').val(features[0].attributes["Jusho"]);
