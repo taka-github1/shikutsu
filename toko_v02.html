@@ -7,7 +7,7 @@
 
   <meta charset="UTF-8">
 
-  <title>attachment_upload_v06</title>
+  <title>しつく君投稿アプリ</title>
   
   
   
@@ -39,8 +39,10 @@
     border-radius: 25px;
   }
   #titlePanel {
-    height: 30px;
+    display: block;
+    height: 80px;
     color: white;
+    text-align: center;
     font-size: 18px;
     background-color:rgba(50, 155, 50, 1);
   }
@@ -243,8 +245,10 @@
   }
   
   #titlePanel {
-    height: 30px;
+    display: block;
+    height: 80px;
     color: white;
+    text-align: center;
     font-size: 18px;
     background-color:rgba(50, 155, 50, 1);
   }
@@ -446,7 +450,9 @@
   </head>
 
   <body>
-    <div id="titlePanel" style="display: block; padding: 5px; text-align: center;">しくつ君投稿アプリ
+    <div id="titlePanel">
+      <h2>しくつ君投稿アプリ</h2>
+      <span>GEO SEARCH CO.,LTD</span>
     </div>
     <div id="anonymousPanel" style="display: block; padding: 5px; text-align: center;">
       <button id="sign-in" class="sign-in-btn">サインイン</button>
@@ -456,9 +462,11 @@
       <button id="sign-out" class="action">サインアウト</button>
     </div-->
     <div id="mainDiv" style="display: none;">
-      <button id="show_form" class="esri-icon-edit">
+      <br/>
+      <button id="show_form" class="esri-icon-edit" style="margin: 20px">
         投稿する
       </button>
+      <br/>
       <table class="histry-table tbl-r05">
         <thead class="thead" id="tableHead" ></thead>
         <tbody class="tbody" id="tableBody"></tbody>
@@ -509,8 +517,8 @@
         <div id="upload_movie" style="display: none" class="select_attachment">
           <table id="movieGallery_tbl">
             <tr>
-              <th style="min-width:auto;"></th>
-              <th style="width:350px;">ファイル名</th>
+              <th style="min-width:150px"></th>
+              <th style="width:auto;">ファイル名</th>
               <th style="width:80px;">サイズ</th>
               <th style="width:150px;">状況</th>
             </tr>
