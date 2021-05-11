@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html lang="ja" >
 
@@ -5,7 +7,10 @@
 
   <meta charset="UTF-8">
   <title>attachment_upload_v06</title>
-
+  
+  
+  
+  
 <style>
 @media screen and (min-width: 767px) {
 
@@ -533,14 +538,27 @@
 
     </div>
     <div id="viewformDiv" style="display: none;">
-      <label>タイトル</label><font color="red">*</font><br/><input id="viewtitle" type="text" class="input_text"/><br/><br/>
-      <label>投稿内容</label><br/><input id="viewnaiyo" type="text" class="input_text"/><br/><br/>
+      <div id="viewheaderbuttonDiv" style="display: flex">
+        <button id="editform_show" class="esri-icon-edit">
+          登録情報の編集
+        </button>
+        <button id="edit_send" style="width:150px;height:40px;display: none;">登録</button>
+        <button id="edit_cancel" style="width:150px;height:40px;display: none;">キャンセル</button>
+      </div>
+      <br/><br/>
+      <label>タイトル</label><font color="red">*</font><br/><input id="viewtitle" type="text" class="input_text" disabled/><br/><br/>
+      <label>投稿内容</label><br/><input id="viewnaiyo" type="text" class="input_text" disabled/><br/><br/>
       <label>場所</label><font color="red">*</font><button class="locate_conpact">▲ 閉じる</button><br/>
       <div id="viewmapviewDiv"></div>
-      <label>住所</label><br/><input id="viewjusho" type="text" class="input_text"/><br/><br/>
-      <label>備考</label><br/><input id="viewbikou" type="text" class="input_text"/><br/><br/>
-      <div id="attachmentlistDiv"><a></a></div>
-      <div id="viewbuttonDiv">
+      <label>住所</label><br/><input id="viewjusho" type="text" class="input_text" disabled/><br/><br/>
+      <label>備考</label><br/><input id="viewbikou" type="text" class="input_text" disabled/>
+      <input id="viewobjectid" type="text" class="input_text" hidden/>
+      <br/><br/>
+      <label>添付ファイル</label><br/>
+      <div id="attachmentlistDiv"></div>
+      <div id="viewfooterbuttonDiv">
+        <button id="addattachment" style="height:40px">添付ファイルの追加(10MB以内)</button>
+        <input id="addattachment-select" type="file" accept="*" hidden/>
         <button class="returnmenu" style="width:150px;height:40px">戻る</button>
       </div>
     </div>
@@ -572,6 +590,8 @@ var longitude = null;
 var jusho = "";
 var view = null;
 var viewview = null;
+var view_graphic_rendar = null;
+var viewview_click = null;
 var chunkSize = 3 * 1024 * 1024;
 var locateBtn;
 
@@ -742,8 +762,46 @@ require([
         $('#jusho').val(jusho);
       });
     }
+    
+    view_graphic_rendar = function(lat, long){
+      viewview.graphics.removeAll();
+      var pointGraphic = new Graphic({
+        geometry: {
+          type: "point",
+          latitude: lat,
+          longitude: long
+        }, 
+        symbol: markerSymbol
+      });
+      viewview.graphics.add(pointGraphic);
 
-    //マップビューの初期化
+      var params = {
+        location: pointGraphic.geometry
+      };
+
+      latitude = lat;
+      longitude = long;
+
+      locatorTask
+        .locationToAddress(params)
+        .then(function (response) {
+
+        if (response.attributes.CountryCode == "JPN" && response.address != "日本") {
+          jusho = response.address;
+        } else {
+          jusho = "";
+        }
+
+        $('#viewjusho').val(jusho);
+
+      })
+        .catch(function (error) {
+        jusho = "";
+        $('#viewjusho').val(jusho);
+      });
+    }
+
+    //現在地の取得
     view.when(function () {
       if(navigator.geolocation) {
         locateBtn.locate();
@@ -896,7 +954,7 @@ require([
     form_clear();
   });
 
-  //戻るボタンクリック
+  //メイン画面に戻るボタンクリック
   $('.returnmenu').click(function() {
     historyTable.refreshRow();
     change_display(1);
@@ -907,6 +965,38 @@ require([
     form_clear();
     change_display(2);
     $('#completeDiv').css('display', 'none');
+  });
+  
+  //登録情報の編集画面を表示
+  $('#editform_show').click(function() {
+    change_view_enable(true);
+  });
+  
+  //編集のキャンセル
+  $('#edit_cancel').click(function() {
+    change_view_enable(false);
+  });
+  
+  //登録情報の編集確定
+  $('#edit_send').click(function() {
+    var title = $('#viewtitle').val();
+    if (title == "") {
+      alert("タイトルは必須です");
+      $('#viewtitle').focus();
+      return;
+    }
+    edit_feature(latitude, longitude);
+  });
+  
+  //添付ファイルの追加
+  $('#addattachment').click(function() {
+    $('#addattachment-select').click();
+  });
+  
+  $('#addattachment-select').change(function() {
+    //movieFilesSelect(this.files[0], 1);
+    
+    addattachent_upload_file($('#viewobjectid').val(), this.files[0])
   });
 
   /*********************ロジック処理*********************/
@@ -946,6 +1036,10 @@ require([
     c3.innerHTML = f.name;
     c5.innerHTML = '<span class="status">読込中</span>';
     c6.innerHTML = '<center><input class="delbtn" type="button" id="delBtn' + count + '" value="削除" onclick="deleteImageRow(this)"></center>';
+    
+    var file_property_bag = {
+      type: f.type
+    };
 
     const reader = new FileReader();
     const imgReader = new Image();
@@ -968,7 +1062,7 @@ require([
           c4.innerHTML =(Math.floor(blob.size/1024/1024*100)/100) + "MB"
           c5.innerHTML = '<span class="upload_id" hidden></span><span class="status"></span>';
 
-          upload_rowimage(row);
+          upload_rowimage(row, file_property_bag);
         });
 
 
@@ -1029,7 +1123,7 @@ require([
     $('#images_label').html(objTBL.rows.length-1 + "件の写真が選択されました");
   }
 
-  function upload_rowimage(row) {
+  function upload_rowimage(row, file_property_bag) {
     var filename = row.children[2].innerText;
     var url = row.children[1].firstElementChild.firstElementChild.src;
 
@@ -1044,7 +1138,7 @@ require([
 
       url = push_feature_url + "/uploads/upload";
 
-      var upload_file = new File([blob], filename);
+      var upload_file = new File([blob], filename, file_property_bag);
 
       var form = new FormData();
       form.set('f','json');
@@ -1479,6 +1573,35 @@ require([
       console.log(data);
     });
   }
+  
+  function addattachent_upload_file(oid, file) {
+
+    var att_html = $('#attachmentlistDiv').html();
+    att_html += file.name + "を追加しています";
+    $('#attachmentlistDiv').html(att_html);
+    
+    url = push_feature_url + "/" + layer_id + "/" + oid + "/addAttachment";
+
+    var form = new FormData();
+    form.set('f','json');
+    form.set('file', file);
+    form.set('token', token);
+
+    $.ajax({
+      url: url,
+      type: "POST",
+      data: form,
+      processData: false,
+      contentType: false,
+      dataType: 'json',
+      async: true
+    }).done(function(data) {
+      historyTable.viewattachment(oid);
+      console.log(data);
+    }).fail(function(data) {
+      console.log(data);
+    });
+  }
 
   function form_clear() {
     form_disabled(false);
@@ -1503,6 +1626,46 @@ require([
     deleteAllImageRow();
     deleteAllMovieRow();
     $('#sendbtn').html("送信");
+  }
+  
+  function edit_feature(lat, long) {
+    url = push_feature_url + "/" + layer_id + "/updateFeatures";
+
+    var feature = {
+      "geometry": {
+        "x": long,
+        "y": lat,
+        "spatialReference" : {"wkid" : 4326}
+      },
+      "attributes": {
+        "OBJECTID": $('#viewobjectid').val(),
+        "Title": $('#viewtitle').val(),
+        "Naiyo": $('#viewnaiyo').val(),
+        "Jusho": $('#viewjusho').val(),
+        "Bikou": $('#viewbikou').val()
+      }
+    };
+
+    var form = new FormData();
+    form.set('f','json');
+    form.set('features', JSON.stringify([feature]));
+    form.set('token', token);
+
+    $.ajax({
+      url: url,
+      type: "POST",
+      data: form,
+      processData: false,
+      contentType: false,
+      dataType: 'json',
+      async: false
+    }).done(function(data) {
+      console.log(data);
+      //戻る
+      $('.returnmenu').click();
+    }).fail(function(data) {
+      console.log(data);
+    });
   }
 
 
@@ -1562,6 +1725,8 @@ var historyTable = {
   changePage:function(page) {
     let btn_next = document.getElementById("btn_next");
     let btn_prev = document.getElementById("btn_prev");
+    let btn_first = document.getElementById("btn_first");
+    let btn_last = document.getElementById("btn_last");
 
     let page_span = document.getElementById("page");
 
@@ -1569,6 +1734,22 @@ var historyTable = {
     if (page > this.pages) page = this.pages;
     let tableBody = $("#tableBody");
     tableBody.empty();
+    
+    if (page == 1) {
+      btn_prev.style.visibility = "hidden";
+      btn_first.style.visibility = "hidden";
+    } else {
+      btn_prev.style.visibility = "visible";
+      btn_first.style.visibility = "visible";
+    }
+
+    if (page == this.numPages()) {
+      btn_next.style.visibility = "hidden";
+      btn_last.style.visibility = "hidden";
+    } else {
+      btn_next.style.visibility = "visible";
+      btn_last.style.visibility = "visible";
+    }
 
     var form = new FormData();
     form.set('f','json');
@@ -1621,18 +1802,6 @@ var historyTable = {
       console.log(data);
     });
 
-    if (page == 1) {
-      btn_prev.style.visibility = "hidden";
-    } else {
-      btn_prev.style.visibility = "visible";
-    }
-
-    if (page == this.numPages()) {
-      btn_next.style.visibility = "hidden";
-    } else {
-      btn_next.style.visibility = "visible";
-    }
-
   },
   prevPage:function() {
     if (this.current_page > 1) {
@@ -1684,34 +1853,41 @@ var historyTable = {
       var features = data.features;
 
       viewview.graphics.removeAll();
-      var pointGraphic = {
-        geometry: {
-          type: "point",
-          latitude: features[0].geometry.y,
-          longitude: features[0].geometry.x,
-          spatialReference: {wkid: 4326}
-        }, 
-        symbol: markerSymbol
-      };
-      viewview.graphics.add(pointGraphic);
 
-      viewview.goTo({
-        center: [features[0].geometry.x, features[0].geometry.y],
-        zoom: 15
-      });
+      if (features[0].geometry != null) {
+        var pointGraphic = {
+          geometry: {
+            type: "point",
+            latitude: features[0].geometry.y,
+            longitude: features[0].geometry.x,
+            spatialReference: {wkid: 4326}
+          }, 
+          symbol: markerSymbol
+        };
+        viewview.graphics.add(pointGraphic);
+
+        viewview.goTo({
+          center: [features[0].geometry.x, features[0].geometry.y],
+          zoom: 15
+        });
+      }
 
       $('#viewtitle').val(features[0].attributes["Title"]);
       $('#viewnaiyo').val(features[0].attributes["Naiyo"]);
       $('#viewjusho').val(features[0].attributes["Jusho"]);
       $('#viewbikou').val(features[0].attributes["Bikou"]);
+      $('#viewobjectid').val(objectid);
 
       this.viewattachment(objectid);
+      
       change_display(4);
     }).fail(function(data) {
       console.log(data);
     });
   },
   viewattachment:function(objectid) {
+    $('#attachmentlistDiv').html("");
+    
     var form = new FormData();
     form.set('f','json');
     form.set('objectIds', objectid);
@@ -1729,6 +1905,10 @@ var historyTable = {
       context: this,
     }).done(function(data) {
       console.log(data);
+      
+      if (data.attachmentGroups.length == 0) {
+        return;
+      }
       var attachments = data.attachmentGroups[0].attachmentInfos;
       
       var att_html = "";
@@ -1741,8 +1921,10 @@ var historyTable = {
         
         if (contentType.indexOf('video') !== -1) {
           att_html += att_name + '<br/><video class="view_gallery" src="'+ att_url + '" controls width="100px"></video><br/><br/>';
-        } else {
+        } else if (contentType.indexOf('image') !== -1) {
           att_html += att_name + '<br/><img class="view_gallery" src="'+ att_url + '" width="100px"></img><br/><br/>';
+        } else {
+          att_html += att_name + '<br/><a target="_blank" rel="noopener noreferrer"  href="'+ att_url + '">ダウンロード</a><br/><br/>';
         } 
       }
       
@@ -1828,6 +2010,7 @@ function change_display(page) {
     $('#completeDiv').css('display', 'block');
     $('#viewformDiv').css('display', 'none');
   } else if (page == 4) { //viewform
+    change_view_enable(false);
     $('#mainDiv').css('display', 'none');
     $('#formDiv').css('display', 'none');
     $('#completeDiv').css('display', 'none');
@@ -1835,6 +2018,36 @@ function change_display(page) {
   }
 }
 
+//閲覧ページの編集モード切替
+function change_view_enable(flg) {
+  if (flg) {
+    $('#viewtitle').prop('disabled', false);
+    $('#viewnaiyo').prop('disabled', false);
+    $('#viewjusho').prop('disabled', false);
+    $('#viewbikou').prop('disabled', false);
+    $('#editform_show').css('display', 'none');
+    $('#edit_send').css('display', 'block');
+    $('#edit_cancel').css('display', 'block');
+    
+    viewview_click = viewview.on("click", function(event){
+      var point = event.mapPoint;
+      view_graphic_rendar(point.latitude, point.longitude);
+    });
+    
+  } else {
+    $('#viewtitle').prop('disabled', true);
+    $('#viewnaiyo').prop('disabled', true);
+    $('#viewjusho').prop('disabled', true);
+    $('#viewbikou').prop('disabled', true);
+    $('#editform_show').css('display', 'block');
+    $('#edit_send').css('display', 'none');
+    $('#edit_cancel').css('display', 'none');
+    
+    if (viewview_click != null) {
+      viewview_click.remove();
+    }
+  }
+}
 
 //ブラウザバックの禁止
 history.pushState(null, null, location.href);
