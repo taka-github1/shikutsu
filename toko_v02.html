@@ -6,7 +6,6 @@
 <head>
 
   <meta charset="UTF-8">
-
   <title>しくつ君投稿アプリ</title>
   
   
@@ -278,6 +277,7 @@
   body {
     width: 100%;
     padding-bottom: 50px;
+    font-family: 'Arial', sans-serif;
   }
   
   #sign-in {
@@ -291,7 +291,7 @@
   
   #titlePanel {
     display: block;
-    height: 80px;
+    height: 90px;
     color: white;
     text-align: center;
     font-size: 18px;
@@ -334,7 +334,9 @@
   #topbar {
     background: #fff;
     padding: 0px;
-    text-align: center;
+    margin: 0;
+    font-size: 0.5rem;
+    text-align: right;
   }
 
   .action-button {
@@ -696,9 +698,12 @@
     <div id="viewscene">
       <div id="sceneviewDiv"></div>
       <div id="topbar">
+        <label>計測ツール</label>
         <button class="action-button esri-icon-measure-line"
                 id="distanceButton" type="button" title="距離計測"/>
         <button class="action-button esri-icon-measure-area" id="areaButton" type="button" title="面積計測"/>
+        <button class="action-button esri-icon-erase" id="clearButton" type="button" title="クリア"/>
+        
       </div>
     </div>
     <br/><br/>
@@ -1029,8 +1034,6 @@ require([
       graphic_rendar(cood.latitude, cood.longitude);
     });
     
-
-    const layer_id = "6e29fd483d724808a6d4588fe408f3c3";
     scene = new WebScene({
       portalItem: {
         id: basescene_id
@@ -1055,19 +1058,9 @@ require([
     homeButton = new Home({
       view: sceneview
     });
-
     sceneview.ui.add(homeButton, "top-left");
 
-    /*
-    sceneview.when(function() {
-      scene.ground.navigationConstraint = {
-        type: "none"
-      };
-    });
-    */
-
     sceneview.ui.add("topbar", "top-right");
-    
     
   }
 
@@ -1232,6 +1225,11 @@ require([
   //距離計測ボタン
   $('#distanceButton').click(function(event) {
     setActiveWidget(null);
+    const elements = $('.active');
+    for (let i = 0; i < elements.length; i++) {
+      elements[i].classList.remove("active");
+    }
+    
     if (!event.target.classList.contains("active")) {
       setActiveWidget("distance");
     } else {
@@ -1242,12 +1240,27 @@ require([
   //面積計測ボタン
   $('#areaButton').click(function(event) {
     setActiveWidget(null);
+    const elements = $('.active');
+    for (let i = 0; i < elements.length; i++) {
+      elements[i].classList.remove("active");
+    }
+    
     if (!event.target.classList.contains("active")) {
       setActiveWidget("area");
     } else {
       setActiveButton(null);
     }
   });
+  
+  //計測クリアボタン
+  $('#clearButton').click(function(event) {
+    setActiveWidget(null);
+    const elements = $('.active');
+    for (let i = 0; i < elements.length; i++) {
+      elements[i].classList.remove("active");
+    }
+  });
+  
   
   //添付ファイルの追加
   $('#addattachment').click(function() {
@@ -1946,11 +1959,6 @@ require([
           sceneview.ui.remove(activeWidget);
           activeWidget.destroy();
           activeWidget = null;
-          
-          const elements = $('.active');
-          for (let i = 0; i < elements.length; i++) {
-            elements[i].classList.remove("active");
-          }
         }
         break;
     }
@@ -2169,7 +2177,7 @@ var historyTable = {
       $('#viewbikou').val(features[0].attributes["Bikou"]);
       $('#viewobjectid').val(objectid);
       $('#viewscene_itemid').val(features[0].attributes["scene_itemid"]);
-
+      
       this.viewattachment(objectid);
       
       change_display(4);
