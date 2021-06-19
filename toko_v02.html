@@ -6,6 +6,7 @@
 <head>
 
   <meta charset="UTF-8">
+
   <title>しくつ君投稿アプリ</title>
   
   
@@ -58,15 +59,22 @@
     padding: 0px;
   }
 
+  #historyMapViewDiv {
+    padding: 0;
+    width: 100%;
+    height: calc(100vh - 400px);
+    margin: 10px;
+  }
+  
   #mapviewDiv {
     padding: 0;
     height: 250px;
-    margin:10px;
+    margin: 10px;
   }
   #viewmapviewDiv {
     padding: 0;
     height: 250px;
-    margin:10px;
+    margin: 10px;
   }
   #viewscene {
     padding: 0;
@@ -180,7 +188,7 @@
     display: none;
   }
 
-  .attachment {
+  .radiomenu {
     box-sizing: border-box;
     cursor: pointer;
     display: inline-block;
@@ -188,7 +196,7 @@
     position: relative;
     width: auto;
   }
-  .attachment::before {
+  .radiomenu::before {
     background: #fff;
     border: 1px solid #231815;
     border-radius: 50%;
@@ -201,7 +209,7 @@
     top: 50%;
     width: 16px;
   }
-  .attachment::after {
+  .radiomenu::after {
     background: #67c5ff;
     border-radius: 50%;
     content: '';
@@ -215,7 +223,7 @@
     width: 10px;
   }
 
-  input[type=radio]:checked + .attachment::after {
+  input[type=radio]:checked + .radiomenu::after {
     opacity: 1;
   }
 
@@ -310,6 +318,13 @@
     padding: 0px;
   }
 
+  #historyMapViewDiv {
+    padding: 0;
+    width: 100%;
+    height: calc(100vh - 400px);
+    margin: 0px;
+  }
+  
   #mapviewDiv {
     padding: 0;
     height: 250px;
@@ -438,7 +453,7 @@
     margin-right: 20px;
   }
 
-  .attachment {
+  .radiomenu {
     box-sizing: border-box;
     cursor: pointer;
     display: inline-block;
@@ -446,7 +461,7 @@
     position: relative;
     width: auto;
   }
-  .attachment::before {
+  .radiomenu::before {
     background: #fff;
     border: 1px solid #231815;
     border-radius: 50%;
@@ -459,7 +474,7 @@
     top: 50%;
     width: 16px;
   }
-  .attachment::after {
+  .radiomenu::after {
     background: #67c5ff;
     border-radius: 50%;
     content: '';
@@ -473,36 +488,36 @@
     width: 10px;
   }
 
-  input[type=radio]:checked + .attachment::after {
+  input[type=radio]:checked + .radiomenu::after {
     opacity: 1;
   }
 
   thead {
     display: none;
   }
-  .histry-table {
+  .history-table {
     width: 100%;
     padding: 10px;
     font-size: 12px;
   }
-  .histry-table tr {
+  .history-table tr {
     width: 100%;
     text-align: left;
   }
-  .histry-table td {
+  .history-table td {
     display: block;
     text-align: left;
     width: 100%;
     padding-top: 5px;
     padding-bottom: 5px;
   }
-  .histry-table td:first-child {
+  .history-table td:first-child {
     background: #e9727e;
     color: #fff;
     font-weight: bold;
     text-align: left;
   }
-  .histry-table td:before {
+  .history-table td:before {
     text-align: left;
     content: attr(data-label);
     font-weight: bold;
@@ -574,25 +589,36 @@
     </div-->
     <div id="mainDiv" style="display: none;">
       <br/>
+      <label>新たに投稿する</label><br/>
       <button id="show_form" class="esri-icon-edit" style="margin: 20px">
         投稿する
       </button>
-      <br/>
-      <table class="histry-table tbl-r05">
-        <thead class="thead" id="tableHead" ></thead>
-        <tbody class="tbody" id="tableBody"></tbody>
-      </table>
-      <button id="btn_first" class="esri-icon-beginning"
-              onclick="historyTable.firstPage()"></button>
-      <button id="btn_prev" class="esri-icon-reverse"
-              onclick="historyTable.prevPage()"></button>
-      <span class="number-page" id="numberPage">
-      </span>
+      <br/><br/>
+      <label>過去の投稿を確認する</label><br/>
+      <input type="radio" name="history" id="history-list" value="history-list" checked>
+      <label for="history-list" class="radiomenu">リスト</label>
+      <input type="radio" name="history" id="history-map" value="history-map">
+      <label for="history-map" class="radiomenu">マップ</label>
+      <div id="historyListDiv" style="display: block" class="select_history">
+        <table class="history-table tbl-r05">
+          <thead class="thead" id="tableHead" ></thead>
+          <tbody class="tbody" id="tableBody"></tbody>
+        </table>
+        <button id="btn_first" class="esri-icon-beginning"
+                onclick="historyTable.firstPage()"></button>
+        <button id="btn_prev" class="esri-icon-reverse"
+                onclick="historyTable.prevPage()"></button>
+        <span class="number-page" id="numberPage">
+        </span>
 
-      <button id="btn_next" class="esri-icon-forward"
-              onclick="historyTable.nextPage()"></button>
-      <button id="btn_last" class="esri-icon-end"
-              onclick="historyTable.lastPage()"></button>
+        <button id="btn_next" class="esri-icon-forward"
+                onclick="historyTable.nextPage()"></button>
+        <button id="btn_last" class="esri-icon-end"
+                onclick="historyTable.lastPage()"></button>
+      </div>
+      <div id="historyMapDiv" style="display: none" class="select_history">
+        <div id="historyMapViewDiv"></div>
+      </div>
     </div>
     <div id="formDiv" style="display: none;">
       <label>会社ID</label><br/><input id="kaishaid" type="text" readonly class="input_text"/><br/><br/>
@@ -608,9 +634,9 @@
       <div id="attachmentDiv">
         <label>投稿区分</label><br/>
         <input type="radio" name="attachment" id="image" value="image" checked>
-        <label for="image" class="attachment">写真</label>
+        <label for="image" class="radiomenu">写真</label>
         <input type="radio" name="attachment" id="movie" value="movie">
-        <label for="movie" class="attachment">動画</label>
+        <label for="movie" class="radiomenu">動画</label>
         <div id="upload_images" style="display: block" class="select_attachment">
           <input id="images-select" type="file" accept="image/*" style="display:none;" multiple/>
           <button id="imagebtn">写真の選択</button>
@@ -750,6 +776,7 @@ var push_feature_url = "https://services6.arcgis.com/YweFsHK2qzfki4O5/ArcGIS/res
 
 var view_feature_url = "https://services6.arcgis.com/YweFsHK2qzfki4O5/ArcGIS/rest/services/SHIKUTSU_UPLOAD_FS_MOVIE_v01/FeatureServer";
 
+var history_webmap_id = "3e65c6abd37249ca867e51d5dc4d9147";
 var basemap_id = "accf3eff22254ed69e23afeb094a4881";
 var basescene_id = "0828bf7e8c1441bfa6ad7d3ae3d14c1f";
 
@@ -763,6 +790,7 @@ var register_url = push_feature_url + "/uploads/register";
 var layer_id = "0";
 
 var token = "";
+var user = "";
 var email = "";
 var portal =null;
 var init_latitude = 35.170915;
@@ -770,6 +798,7 @@ var init_longitude = 136.8793429;
 var latitude = null;
 var longitude = null;
 var jusho = "";
+var historyview = null;
 var view = null;
 var viewview = null;
 var view_graphic_rendar = null;
@@ -879,21 +908,75 @@ require([
         $('#completeDiv').css('display', 'none');
         $('#footerPanel').css('display', 'block');
         token = identityManager.credentials[0].token;
-        email = portal.user.email
+        user = identityManager.credentials[0].userId;
+        email = portal.user.email;
         historyTable.init(identityManager.credentials[0].userId, token);
 
         initForm();
       });
     });
   }
-
+  
   function initForm() {
+    const historymap = new WebMap({
+      portalItem: {
+        id: history_webmap_id,
+      }
+    });
+    
+    historyview = new MapView({
+      container: "historyMapViewDiv",
+      map: historymap
+    });
+    historyview.popup.collapseEnabled = false;
+    historyview.popup.dockOptions = {
+      position: "top-right",
+      breakpoint: {
+        width: 300,
+        height: 500
+      }
+    };
+    
+    var viewAction = {
+      title: "閲覧",
+      id: "view-this",
+      className: "esri-icon-search"
+    };
+    var deleteAction = {
+      title: "削除",
+      id: "delete-this",
+      className: "esri-icon-erase"
+    };
+    
+    historyview.popup.actions = [viewAction, deleteAction];
+    historyview.popup.maxInlineActions = 5;
+    
+    historyview.popup.on("trigger-action", function (event) {
+      historyview.popup.close();
+      if (event.action.id === "view-this") {
+        var oid = historyview.popup.selectedFeature.getObjectId();
+        historyTable.viewForm(oid);
+      }
+      if (event.action.id === "delete-this") {
+        var oid = historyview.popup.selectedFeature.getObjectId();
+        historyTable.deleteRow(oid);
+      }
+    });
+    
+    historyview.when(function () {
+      var layers = historyview.map.layers;
+      var featureLayer = layers.find(
+      value => value.title == "試掘ポイント");
+      
+      //featureLayer.definitionExpression = creator_field + " = '" + user + "'";
+    });
+    
     const map = new WebMap({
       portalItem: {
         id: basemap_id,
       }
     });
-
+    
     view = new MapView({
       container: "mapviewDiv",
       map: map,
@@ -916,11 +999,6 @@ require([
 
     view.ui.add(locateBtn, {
       position: "top-left"
-    });
-
-    viewview = new MapView({
-      container: "viewmapviewDiv",
-      map: map
     });
 
     var locatorTask = new Locator({
@@ -967,6 +1045,27 @@ require([
       });
     }
     
+    //マップクリック
+    view.on("click", function(event){
+      var point = event.mapPoint;
+      graphic_rendar(point.latitude, point.longitude);
+    });
+
+    //住所検索
+    searchWidget.on("search-complete", function(event){
+      try {
+        var geo = event.results[0].results[0].feature.geometry;
+        graphic_rendar(geo.latitude, geo.longitude);
+      } catch(e) {
+
+      }
+    });    
+    
+    viewview = new MapView({
+      container: "viewmapviewDiv",
+      map: map
+    });
+    
     view_graphic_rendar = function(lat, long){
       viewview.graphics.removeAll();
       var pointGraphic = new Graphic({
@@ -1012,22 +1111,6 @@ require([
       }
     });
 
-    //マップクリック
-    view.on("click", function(event){
-      var point = event.mapPoint;
-      graphic_rendar(point.latitude, point.longitude);
-    });
-
-    //住所検索
-    searchWidget.on("search-complete", function(event){
-      try {
-        var geo = event.results[0].results[0].feature.geometry;
-        graphic_rendar(geo.latitude, geo.longitude);
-      } catch(e) {
-
-      }
-    });
-
     //現在地検索
     locateBtn.on("locate", function(event){
       var cood = event.position.coords;
@@ -1053,7 +1136,7 @@ require([
       },
       qualityProfile: "high"
     });
-
+    sceneview.constraints.snapToZoom = false;
 
     homeButton = new Home({
       view: sceneview
@@ -1070,7 +1153,20 @@ require([
     form_clear();
     change_display(2);
   });
+  
+  //投稿履歴の切り替え
+  $('input[name="history"]:radio').change(function() {
+    var type = $(this).val();
+    if(type == "history-list"){
+      $('#historyListDiv').css('display', 'block');
+      $('#historyMapDiv').css('display', 'none');
+    }else{
+      $('#historyListDiv').css('display', 'none');
+      $('#historyMapDiv').css('display', 'block');
+    }
+  });
 
+  //マップの表示・非表示切り替え
   $('.locate_conpact').click(function() {
     $('#mapviewDiv').toggle(function(){
       if ($(this).is(':visible')){
@@ -1390,7 +1486,7 @@ require([
           return XHR;
         },
         success: function(data) {
-          status_span.innerText = "送信済";
+          status_span.innerText = "追加済";
           upload_id_span.innerText = data.item.itemID;
           
           if (check_image_upload() == true) {
@@ -1415,7 +1511,7 @@ require([
       if (tableRows[i].getElementsByClassName('status')[0] == null) {
         continue;
       }
-      if (tableRows[i].getElementsByClassName('status')[0].innerText != "送信済") {
+      if (tableRows[i].getElementsByClassName('status')[0].innerText != "追加済") {
         return false;
       }
     }
@@ -1612,7 +1708,7 @@ require([
       dataType: 'json',
       async: true
     }).done(function(data) {
-      $('#movie_status_' + str_index).html("送信済");
+      $('#movie_status_' + str_index).html("追加済");
       $('#movie_upload_id_' + str_index).html(upload_id);
 
       //入力可に設定
@@ -1748,7 +1844,6 @@ require([
       let append_image_attachent = async (count) => {
         let upload = uploads[count];
 
-        var form = new FormData();
         var form = new FormData();
         form.set('f','json');
         form.set('uploadId', upload.id);
@@ -2286,6 +2381,7 @@ var historyTable = {
     }).done(function(data) {
       console.log(data);
       this.refreshRow();
+      refresh_mapview(historyview);
     }).fail(function(data) {
       console.log(data);
     });
@@ -2331,6 +2427,7 @@ function change_display(page) {
     $('#completeDiv').css('display', 'none');
     $('#viewformDiv').css('display', 'none');
     $('#helpDiv').css('display', 'none');
+    refresh_mapview(historyview);
   } else if (page == 2) { //form
     $('#mainDiv').css('display', 'none');
     $('#formDiv').css('display', 'block');
@@ -2367,6 +2464,17 @@ function change_display(page) {
     $('#viewformDiv').css('display', 'none');
     $('#helpDiv').css('display', 'block');
   }
+}
+
+
+function refresh_mapview(mapview) {
+  if (mapview == "") return;
+  var layers = historyview.layerViews.items;
+  
+  for (var i=0; i<layers.length; i++) {
+    layers[i].refresh();
+  }
+  
 }
 
 function change_viewscene_layer(item_id) {
