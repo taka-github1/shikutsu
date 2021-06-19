@@ -6,12 +6,9 @@
 <head>
 
   <meta charset="UTF-8">
-
   <title>しくつ君投稿アプリ</title>
   
   
-  
- 
   
   
 <style>
@@ -39,7 +36,7 @@
     margin: 35px;
     border-radius: 25px;
   }
-  
+
   #titlePanel {
     display: block;
     height: 80px;
@@ -68,7 +65,7 @@
     height: calc(100vh - 400px);
     margin: 10px;
   }
-  
+
   #mapviewDiv {
     padding: 0;
     height: 250px;
@@ -117,7 +114,7 @@
     background: #0079c1;
     color: #e4e4e4;
   }
-  
+
   #attachmentlistDiv {
     margin: 20px;
   }
@@ -236,7 +233,7 @@
     border: 1px solid #a4a4a4;
     border-collapse: collapse;
   }
-  
+
   tr {
     border: 1px solid #a4a4a4;
     border-collapse: collapse;
@@ -259,21 +256,90 @@
     background: #e9727e;
     color: #fff;
   }
-  
+
   .view_gallery {
     max-width: 100%;
     width: auto;
     max-height: 200px;
     margin : 0 auto;
   }
-  
+
   #footerPanel {
     position: fixed;
     bottom: 0;
-    
+
   }
 }
 
+.popup_wrap input {
+  display: none;
+}
+.popup_overlay {
+  display: flex;
+  justify-content: center;
+  overflow: auto;
+  position: fixed;
+  top: 0;
+  left: 10;
+  z-index: 9999;
+  width: 100%;
+  height: 100%;
+  background: #37beb03d;
+  opacity: 0;
+  transition: opacity 0.5s, transform 0s 0.5s;
+  transform: scale(0);
+}
+.popup_trigger {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+}
+.popup_content {
+  position: relative;
+  padding: 20px;
+  align-self: center;
+  width: 75%;
+  max-width: 800px;
+  box-sizing: border-box;
+  background: #fff;
+  line-height: 1.4em;
+  transition: 0.5s;
+  border-radius: 12px;
+  box-shadow: 0 0 5px rgba(94, 94, 94, 0.7);
+}
+.popup_content p{
+  padding:20px 20px 5px 20px;
+  text-align: center;
+}
+.close_btn {
+  position: absolute;
+  top: 14px;
+  right: 16px;
+  font-size: 30px;
+  cursor: pointer;
+  color:#37beb0;
+}
+.popup_wrap input:checked ~ .popup_overlay {
+  opacity: 1;
+  transform: scale(1);
+  transition: opacity 0.5s;
+}
+.open_btn {
+  color: #37beb0;
+  border-radius: 3px;
+  cursor: pointer;
+  background: #fff;
+  transition: .3s ease;
+  border:1px solid #37beb0;
+  padding:5px 15px;
+  margin: 10px;
+  font-weight: bold;
+}
+.open_btn:hover{
+  background:#37beb0;
+  color:#fff;
+  transition: .3s ease;
+}
 
 @media screen and (max-width: 767px) {
   html{
@@ -284,13 +350,13 @@
     width: 100%;
     background-color:rgba(0, 150, 200, 0.3);
   }
-  
+
   body {
     width: 100%;
     padding-bottom: 50px;
     font-family: 'Arial', sans-serif;
   }
-  
+
   #sign-in {
     width: 60%;
     min-width: 150px;
@@ -299,7 +365,7 @@
     margin: 35px;
     border-radius: 25px;
   }
-  
+
   #titlePanel {
     display: block;
     height: 90px;
@@ -328,7 +394,7 @@
     height: calc(100vh - 400px);
     margin: 0px;
   }
-  
+
   #mapviewDiv {
     padding: 0;
     height: 250px;
@@ -423,7 +489,7 @@
     color: black;
     font-weight: bold;
   }
-  
+
   img {
     vertical-align: middle;
   }
@@ -452,7 +518,7 @@
   input[type="radio"]{
     display: none;
   }
-  
+
   input[type="button"]{
     margin-right: 20px;
   }
@@ -527,14 +593,14 @@
     font-weight: bold;
     min-width: 50px;
   }
-  
+
   .view_gallery {
     max-width: 100%;
     width: auto;
     max-height: 200px;
     margin : 0 auto;
   }
-  
+
   #footerPanel {
     position: fixed;
     bottom: 0;
@@ -636,7 +702,7 @@
       <input id="email" type="text" class="hidden_email" hidden/><br/><br/>
 
       <div id="attachmentDiv">
-        <label>投稿区分</label><br/>
+        <label>投稿区分</label><label for="trigger" class="open_btn esri-icon-question">撮影のヒント</label><br/>
         <input type="radio" name="attachment" id="image" value="image" checked>
         <label for="image" class="radiomenu">写真</label>
         <input type="radio" name="attachment" id="movie" value="movie">
@@ -733,7 +799,7 @@
                 id="distanceButton" type="button" title="距離計測"/>
         <button class="action-button esri-icon-measure-area" id="areaButton" type="button" title="面積計測"/>
         <button class="action-button esri-icon-erase" id="clearButton" type="button" title="クリア"/>
-        
+
       </div>
     </div>
     <br/><br/>
@@ -746,25 +812,40 @@
     </div>
   </div>
   <div id="helpDiv" style="display: none;">
-    <h1>
+    <h2>
       <img src="https://taka-github1.github.io/shikutsu/help.png" width="40px" height="auto"/>
       ヘルプ
-    </h1>
-    <span>
-      動画サイズは、HD(1280×720)を推奨しています。<br/>
-      カメラモードになった時に、「設定」から「サイズ」をご確認ください。<br/>
-      （機種により若干設定場所が異なります）<br/>
-    </span>
-    <br/>
-    <label>◆撮影のコツ</label><br/>
-    <span>
-      まず、真上から道路部分を含め撮影し、それから穴の部分を底辺を含め<br/>
-      360°撮影するときれいに3D化されます。
-    </span>
+    </h2>
     <br/>
     <br/>
     <img src="https://taka-github1.github.io/shikutsu/photographer.png" width="250px" height="auto"/><br/><br/>
     <button class="returnmenu" style="width:150px;height:40px">戻る</button>
+  </div>
+  <div class="popup_wrap">
+    <input id="trigger" type="checkbox">
+    <div class="popup_overlay">
+      <label for="trigger" class="popup_trigger"></label>
+      <div class="popup_content">
+        <label for="trigger" class="close_btn">×</label>
+        <h2>
+          <img src="https://taka-github1.github.io/shikutsu/help.png" width="40px" height="auto"/>
+          撮影のヒント
+        </h2>
+        <span>
+          動画サイズは、HD(1280×720)を推奨しています。<br/>
+          カメラモードになった時に、「設定」から「サイズ」をご確認ください。<br/>
+          （機種により若干設定場所が異なります）<br/>
+        </span>
+        <br/>
+        <label>◆撮影のコツ</label><br/>
+        <span>
+          まず、真上から道路部分を含め撮影し、それから穴の部分を底辺を含め360°撮影するときれいに3D化されます。
+        </span>
+        <br/>
+        <br/>
+        <img src="https://taka-github1.github.io/shikutsu/photographer.png" width="250px" height="auto"/><br/><br/>
+      </div>
+    </div>
   </div>
   <div id="footerPanel" style="display: none;">
     <!--<a href="#" onclick="change_display(9);">しくつ君ヘルプ</a><br/>
@@ -2639,5 +2720,4 @@ window.addEventListener('popstate', (e) => {
 </body>
 
 </html>
- 
  
