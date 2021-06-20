@@ -89,7 +89,7 @@
     height: 100%;
     width: 100%;
   }
-  #topbar {
+  .widget_scene {
     background: #fff;
     padding: 10px;
   }
@@ -417,7 +417,7 @@
     height: 100%;
     width: 100%;
   }
-  #topbar {
+  .widget_scene {
     background: #fff;
     padding: 0px;
     margin: 0;
@@ -781,7 +781,8 @@
         <label for="movie" class="radiomenu">動画</label>
         <div id="upload_images" style="display: block" class="select_attachment">
           <input id="images-select" type="file" accept="image/*" style="display:none;" multiple/>
-          <button id="imagebtn">写真の選択</button>
+          <button id="imagebtn"><img src="https://taka-github1.github.io/shikutsu/camera.png
+" height="18px"></img><span>　写真の選択</span></button>
           <label id="images_label"></label><br/>
           <table id="imageGallery_tbl">
             <tr>
@@ -803,19 +804,22 @@
               <th style="width:150px;">状況</th>
             </tr>
             <tr>
-              <td><button id="moviebtn1">[１] 選択</button></td>
+              <td><button id="moviebtn1"><img src="https://taka-github1.github.io/shikutsu/camera.png
+" height="18px"></img><span>　選択</span></button></td>
               <td><span id="movie_filename_1"/></td>
               <td><span id="movie_size_1"/></td>
               <td><span id="movie_status_1"/></td>
             </tr>
             <tr>
-              <td><button id="moviebtn2">[２] 選択</button></td>
+              <td><button id="moviebtn2"><img src="https://taka-github1.github.io/shikutsu/camera.png
+" height="18px"></img><span>　選択</span></button></td>
               <td><span id="movie_filename_2"/></td>
               <td><span id="movie_size_2"/></td>
               <td><span id="movie_status_2"/></td>
             </tr>
             <tr>
-              <td><button id="moviebtn3">[３] 選択</button></td>
+              <td><button id="moviebtn3"><img src="https://taka-github1.github.io/shikutsu/camera.png
+" height="18px"></img><span>　選択</span></button></td>
               <td><span id="movie_filename_3"/></td>
               <td><span id="movie_size_3"/></td>
               <td><span id="movie_status_3"/></td>
@@ -869,7 +873,7 @@
     <div id="viewscene">
       <label>３Ｄシーン</label><br/>
       <div id="sceneviewDiv"></div>
-      <div id="topbar">
+      <div id="measure_widget" class="widget_scene">
         <label>計測ツール</label>
         <button class="action-button esri-icon-measure-line"
                 id="distanceButton" type="button" title="距離計測"/>
@@ -1288,6 +1292,9 @@ require([
     sceneview = new SceneView({
       container: "sceneviewDiv",
       map: scene,
+      ui: {
+        components: ["attribution"]
+      },
       environment: {
         background: {
           type: "color",
@@ -1305,7 +1312,7 @@ require([
     });
     sceneview.ui.add(homeButton, "top-left");
 
-    sceneview.ui.add("topbar", "top-right");
+    sceneview.ui.add("measure_widget", "top-right");
     
   }
 
