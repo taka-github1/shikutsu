@@ -6,6 +6,7 @@
 <head>
 
   <meta charset="UTF-8">
+
   <title>しくつ君投稿アプリ</title>
   
   
@@ -850,6 +851,7 @@
     <label>住所</label><br/><input id="viewjusho" type="text" class="input_text" disabled/><br/><br/>
     <label>備考</label><br/><input id="viewbikou" type="text" class="input_text" disabled/>
     <input id="viewobjectid" type="text" class="input_text" hidden/>
+    <input id="viewstatus" type="text" class="input_text" hidden/>
     <input id="viewscene_itemid" type="text" class="input_text" hidden/>
     <br/><br/>
     <div id="viewheaderbuttonDiv" style="display: flex">
@@ -860,9 +862,12 @@
       <button id="edit_cancel" style="width:150px;height:40px;display: none;">キャンセル</button>
     </div>
     <br/><br/>
-    <label>３Ｄシーン</label><br/>
-    <div id="making_scene" class="esri-icon-time-clock">加工待ち</div>
+    <div id="making_scene" class="esri-icon-time-clock">
+      <label>３Ｄシーン</label><br/>
+      <span id="status_text"></span>
+    </div>
     <div id="viewscene">
+      <label>３Ｄシーン</label><br/>
       <div id="sceneviewDiv"></div>
       <div id="topbar">
         <label>計測ツール</label>
@@ -1124,7 +1129,8 @@ require([
       var featureLayer = layers.find(
       value => value.title == "試掘ポイント");
       
-      //featureLayer.definitionExpression = creator_field + " = '" + user + "'";
+      featureLayer.definitionExpression = "Status<>9";
+      //featureLayer.definitionExpression = "Status<>9 And " + creator_field + " = '" + user + "'";
     });
     
     const map = new WebMap({
@@ -2300,7 +2306,7 @@ var historyTable = {
     var form = new FormData();
     form.set('f','json');
     form.set('returnGeometry', false);
-    form.set('where', "1=1");
+    form.set('where', "Status<>9");
     //form.set('where', creator_field + " = '" + this.userId + "'");
     form.set('outFields', '*');
     form.set('orderByFields', create_date_field + ' DESC');
@@ -2427,7 +2433,16 @@ var historyTable = {
       $('#viewjusho').val(features[0].attributes["Jusho"]);
       $('#viewbikou').val(features[0].attributes["Bikou"]);
       $('#viewobjectid').val(objectid);
+      $('#viewstatus').val(features[0].attributes["Status"]);
       $('#viewscene_itemid').val(features[0].attributes["scene_itemid"]);
+      
+      if (features[0].attributes["Status"] == "0") {
+        $('#status_text').html("加工待ち");
+      } else if (features[0].attributes["Status"] == "2") {
+        $('#status_text').html("加工不可");
+      } else if (features[0].attributes["Status"] == "3") {
+        $('#status_text').html("公開終了");
+      }
       
       this.viewattachment(objectid);
       
@@ -2604,10 +2619,10 @@ function change_display(page) {
     $('#viewformDiv').css('display', 'block');
     $('#helpDiv').css('display', 'none');
     
-    if ($('#viewscene_itemid').val() == "") {
+    if ($('#viewstatus').val() != "1" || $('#viewscene_itemid').val() == "") {
       $('#making_scene').css('display', 'block');
       $('#viewscene').css('display', 'none');
-    } else {
+    } else {  //作成済みのみ
       $('#making_scene').css('display', 'none');
       $('#viewscene').css('display', 'block');
       
