@@ -1,5 +1,6 @@
   
 {
+  "name": "管理アプリ開発用"
   "webappId" : "12BPdduZulYtrkpl",
   "push_feature_url": "https://services6.arcgis.com/YweFsHK2qzfki4O5/arcgis/rest/services/SHIKUTSU_FS_SOLA_v01/FeatureServer",
   "layer_id": "0",
