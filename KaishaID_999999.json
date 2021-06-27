@@ -1,7 +1,7 @@
 {
   "webappId" : "Mbk99KGQZSZGinLr",
   "push_feature_url": "https://services6.arcgis.com/YweFsHK2qzfki4O5/ArcGIS/rest/services/SHIKUTSU_UPLOAD_FS_MOVIE_v01/FeatureServer",
-  "view_feature_url": "https://services6.arcgis.com/YweFsHK2qzfki4O5/ArcGIS/rest/services/SHIKUTSU_UPLOAD_FS_MOVIE_v01/FeatureServer",
+  "layer_id": "0",
   "history_webmap_id": "3e65c6abd37249ca867e51d5dc4d9147",
   "basemap_id": "accf3eff22254ed69e23afeb094a4881",
   "basescene_id": "0828bf7e8c1441bfa6ad7d3ae3d14c1f",
