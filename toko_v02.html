@@ -1,12 +1,15 @@
 
 
 <!DOCTYPE html>
-<html lang="en" >
+<html lang="ja" >
 
 <head>
 
   <meta charset="UTF-8">
   <title>しくつ君投稿アプリ</title>
+  
+  
+  
   
 <style>
 @media screen and (min-width: 767px) {
@@ -122,6 +125,36 @@
   #attachmentlistDiv {
     margin: 20px;
   }
+  
+  #backbtn{
+    position: fixed;
+    right: 0.5rem;
+    height: 2rem;
+    line-height: 2rem;
+    width: 2rem;
+    text-align: center;
+    border-radius: 0.2rem;
+    background: rgba(0, 0, 0, 0.5);
+    color: rgba(255, 255, 255, 0.75);
+  }
+  #bottombtn{
+    position: fixed;
+    right: 0.5rem;
+    height: 2rem;
+    line-height: 2rem;
+    width: 2rem;
+    text-align: center;
+    border-radius: 0.2rem;
+    background: rgba(0, 0, 0, 0.5);
+    color: rgba(255, 255, 255, 0.75);
+  }
+  #backbtn {
+    bottom: 14.5rem;
+  }
+  #bottombtn {
+    bottom: 12rem;
+  }
+  
   #gridDiv {
     padding: 0;
     margin:10px;
@@ -458,6 +491,36 @@
   #attachmentlistDiv {
     text-align: center;
   }
+  
+  #backbtn{
+    position: fixed;
+    right: 0.5rem;
+    height: 2rem;
+    line-height: 2rem;
+    width: 2rem;
+    text-align: center;
+    border-radius: 0.2rem;
+    background: rgba(0, 0, 0, 0.5);
+    color: rgba(255, 255, 255, 0.75);
+  }
+  #bottombtn{
+    position: fixed;
+    right: 0.5rem;
+    height: 2rem;
+    line-height: 2rem;
+    width: 2rem;
+    text-align: center;
+    border-radius: 0.2rem;
+    background: rgba(0, 0, 0, 0.5);
+    color: rgba(255, 255, 255, 0.75);
+  }
+  #backbtn {
+    bottom: 14.5rem;
+  }
+  #bottombtn {
+    bottom: 12rem;
+  }
+  
   #gridDiv {
     padding: 0;
     margin: 0px;
@@ -898,6 +961,8 @@
     <br/><br/>
     <label>添付ファイル</label><br/>
     <div id="attachmentlistDiv"></div>
+    <span id="backbtn"><i class="esri-icon-up-arrow"></i></span>
+    <span id="bottombtn"><i class="esri-icon-down-arrow"></i></span>
     <div id="viewfooterbuttonDiv">
       <button id="addattachment" style="height:40px">添付ファイルの追加(10MB以内)</button>
       <input id="addattachment-select" type="file" accept="*" hidden/>
@@ -1003,7 +1068,7 @@ if (param != null) {
 }
 
 //configの読み込み
-var json_url = "KaishaID_" + $('#kaishaid').val() + ".json";
+var json_url = "https://taka-github1.github.io/shikutsu/KaishaID_" + $('#kaishaid').val() + ".json";
 
 $.ajaxSetup({async: false});
 $.getJSON(json_url, function(config) {
@@ -1551,6 +1616,13 @@ require([
     //movieFilesSelect(this.files[0], 1);
     
     addattachent_upload_file($('#viewobjectid').val(), this.files[0])
+  });
+  
+  $('#backbtn').click(function () {
+    $('body, html').animate({scrollTop: 0}, 300, 'linear');
+  });
+  $('#bottombtn').click(function () {
+    $('body, html').animate({scrollTop: $('#viewfooterbuttonDiv').offset().top}, 300, 'linear');
   });
 
   /*********************ロジック処理*********************/
