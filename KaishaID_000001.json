@@ -1,4 +1,5 @@
 {
+  "name": "ジオ・サーチ",
   "webappId" : "Mbk99KGQZSZGinLr",
   "push_feature_url": "https://services6.arcgis.com/YweFsHK2qzfki4O5/ArcGIS/rest/services/SHIKUTSU_UPLOAD_FS_MOVIE_v01/FeatureServer",
   "layer_id": "0",
